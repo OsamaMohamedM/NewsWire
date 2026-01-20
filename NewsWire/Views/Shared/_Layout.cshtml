@@ -21,8 +21,8 @@
     <link href="~/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
     <link href="~/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
     <link href="~/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-
     <link href="~/assets/css/main.css" rel="stylesheet">
+    <link href="~/assets/css/news-override.css" rel="stylesheet">
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
@@ -40,7 +40,7 @@
                     <li><a href="Home/Index" class="active">Home</a></li>
                     <li><a href="Home/about">About</a></li>
                     <li><a href="Home/TeamMember">Team Member</a></li>
-                    <li><a href="Home/contact">Contact</a></li>
+                    <li><a href="Home/Contact">Contact</a></li>
                     <li><a href="Home/Privacy">Privacy</a></li>
                 </ul>
                 <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
@@ -57,7 +57,7 @@
             <div id="hero-carousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
 
                 <div class="carousel-item active">
-                    <img src="../assets/img/hero-carousel/hero-carousel-1.jpg" alt="">
+                    <img src="~/assets/img/hero-carousel/hero-carousel-1.jpg" alt="">
                     <div class="container">
                         <h2>Welcome to NewsWire</h2>
                         <p>Your trusted source for breaking news and in-depth analysis from around the globe.</p>
@@ -66,7 +66,7 @@
                 </div>
 
                 <div class="carousel-item">
-                    <img src="../assets/img/hero-carousel/hero-carousel-2.jpg" alt="">
+                    <img src="~/assets/img/hero-carousel/hero-carousel-2.jpg" alt="">
                     <div class="container">
                         <h2>Future Tech</h2>
                         <p>Stay updated with the latest trends in Artificial Intelligence and technology.</p>
@@ -75,7 +75,7 @@
                 </div>
 
                 <div class="carousel-item">
-                    <img src="../assets/img/hero-carousel/hero-carousel-3.jpg" alt="">
+                    <img src="~/assets/img/hero-carousel/hero-carousel-3.jpg" alt="">
                     <div class="container">
                         <h2>Exclusive Reports</h2>
                         <p>Special coverage and stories directly from the field.</p>
