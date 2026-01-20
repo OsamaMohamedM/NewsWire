@@ -1,0 +1,28 @@
+﻿@model List<NewsWire.Models.Category>
+<section id="featured-services" class="featured-services section">
+
+    <div class="container">
+
+        <div class="row gy-4">
+            @foreach (var item in Model)
+            {
+
+                <div class="col-xl-3 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="100">
+                    <a href="News/Index/@item.Id">
+                        <div class="service-item position-relative">
+                            <div class="icon"><i class="fas fa-heartbeat icon"></i></div>
+                            <h4>@item.Name</h4>
+                            <p>@item.Description</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- End Service Item -->
+            }
+        </div>
+
+    </div>
+
+</section>
+
+<!-- /Featured Services Section -->

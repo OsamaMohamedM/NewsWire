@@ -1,0 +1,88 @@
+﻿@model NewsWire.Models.Category
+
+@{
+    ViewData["Title"] = "Category Details";
+}
+
+@section Styles {
+    <link href="~/assets/css/crud-forms.css" rel="stylesheet">
+}
+
+<!-- Main Content Section -->
+<section class="section py-5">
+    <div class="container" data-aos="fade-up">
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card details-card">
+                    <div class="card-header bg-light border-0 py-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="card-title mb-0">
+                                    <i class="bi bi-folder2-open me-2"></i>
+                                    @Html.DisplayFor(model => model.Name)
+                                </h4>
+                                <span class="info-badge mt-2">Category Information</span>
+                            </div>
+                            <div class="text-muted">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                <small>ID: @Html.DisplayFor(model => model.Id)</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-5">
+                        <div class="row">
+                            <!-- Category Name -->
+                            <div class="col-md-6 mb-4">
+                                <div class="info-item">
+                                    <label class="form-label fw-bold text-muted mb-3">
+                                        <i class="bi bi-tag me-2"></i>
+                                        @Html.DisplayNameFor(model => model.Name)
+                                    </label>
+                                    <div class="info-value p-4 bg-light rounded border-start border-4">
+                                        <h5 class="mb-0 text-dark">@Html.DisplayFor(model => model.Name)</h5>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category Description -->
+                            <div class="col-md-6 mb-4">
+                                <div class="info-item">
+                                    <label class="form-label fw-bold text-muted mb-3">
+                                        <i class="bi bi-card-text me-2"></i>
+                                        @Html.DisplayNameFor(model => model.Description)
+                                    </label>
+                                    <div class="info-value p-4 bg-light rounded border-start border-4">
+                                        <p class="mb-0 text-dark">@Html.DisplayFor(model => model.Description)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row mt-4 pt-4 border-top">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <!-- Back Button -->
+                                    <a asp-action="Index" class="btn btn-secondary px-4 py-2">
+                                        <i class="bi bi-arrow-left me-2"></i>
+                                        Back to Categories
+                                    </a>
+
+                                    <!-- Action Buttons -->
+                                    <div class="d-flex gap-2">
+                                        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary px-4 py-2">
+                                            <i class="bi bi-pencil-square me-2"></i>
+                                            Edit Category
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
