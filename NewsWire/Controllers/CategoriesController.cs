@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NewsWire.Data;
 using NewsWire.Models;
@@ -19,7 +20,6 @@ namespace NewsWire.Controllers
             return View(_context.Categories.ToList());
         }
 
-        // GET: Categories/Details/5
         public IActionResult Details(int? id)
         {
             if (id == null)
@@ -37,6 +37,7 @@ namespace NewsWire.Controllers
             return View(category);
         }
 
+        [Authorize("Admin")]
         public IActionResult Create()
         {
             return View();
@@ -44,6 +45,7 @@ namespace NewsWire.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize("Admin")]
         public IActionResult Create([Bind("Id,Name,Description")] Category category)
         {
             if (ModelState.IsValid)
@@ -56,6 +58,7 @@ namespace NewsWire.Controllers
         }
 
         // GET: Categories/Edit/5
+        [Authorize("Admin")]
         public IActionResult Edit(int? id)
         {
             if (id == null)
@@ -75,6 +78,7 @@ namespace NewsWire.Controllers
         // properties you want to bind to. For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize("Admin")]
         public IActionResult Edit(int id, [Bind("Id,Name,Description")] Category category)
         {
             if (id != category.Id)
@@ -106,6 +110,7 @@ namespace NewsWire.Controllers
         }
 
         // GET: Categories/Delete/5
+        [Authorize("Admin")]
         public IActionResult Delete(int? id)
         {
             if (id == null)
@@ -126,6 +131,7 @@ namespace NewsWire.Controllers
         // POST: Categories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize("Admin")]
         public IActionResult DeleteConfirmed(int id)
         {
             var category = _context.Categories.Find(id);

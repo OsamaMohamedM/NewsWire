@@ -1,18 +1,41 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NewsWire.Data;
+using NewsWire.Models;
+using NewsWire.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Database Service
+builder.Services.AddDbContext<NewsDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Identity Service Setup
+builder.Services.AddIdentity<User, IdentityRole>(
+     option =>
+     {
+         option.Password.RequireDigit = false;
+         option.Password.RequireLowercase = false;
+         option.Password.RequireUppercase = false;
+         option.Password.RequireNonAlphanumeric = false;
+         option.Password.RequiredLength = 6;
+         option.User.RequireUniqueEmail = false;
+         option.SignIn.RequireConfirmedEmail = false;
+         option.SignIn.RequireConfirmedPhoneNumber = false;
+     })
+    .AddEntityFrameworkStores<NewsDbContext>()
+    .AddDefaultUI()
+    .AddDefaultTokenProviders();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
+builder.Services.AddScoped<INewsManagementService, NewsManagementService>();
+
 builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
 
-var connectionString = builder.Configuration.GetConnectionString("NewsWebSite");
-builder.Services.AddDbContext<NewsDbContext>(options =>
-    options.UseSqlServer(connectionString));
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -24,6 +47,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
+app.MapRazorPages();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

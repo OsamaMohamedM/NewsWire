@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NewsWire.Data;
 using NewsWire.Models;
 
 namespace NewsWire.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class TeamMembersController : Controller
     {
         private readonly NewsDbContext _context;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NewsWire.Data;
 using NewsWire.Models;
@@ -21,6 +22,7 @@ namespace NewsWire.Controllers
         }
 
         // GET: ContactUs/Details/5
+        [Authorize]
         public IActionResult Details(int? id)
         {
             if (id == null)
@@ -39,6 +41,7 @@ namespace NewsWire.Controllers
         }
 
         // GET: ContactUs/Create
+        [Authorize]
         public IActionResult Create()
         {
             return View();
@@ -48,6 +51,7 @@ namespace NewsWire.Controllers
         // properties you want to bind to. For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult Create([Bind("Id,Name,Email,Subject,Message")] ContactUs contactUs)
         {
             if (ModelState.IsValid)
@@ -60,6 +64,7 @@ namespace NewsWire.Controllers
         }
 
         // GET: ContactUs/Edit/5
+        [Authorize]
         public IActionResult Edit(int? id)
         {
             if (id == null)
@@ -76,6 +81,7 @@ namespace NewsWire.Controllers
         }
 
         // GET: ContactUs/Delete/5
+        [Authorize("Admin")]
         public IActionResult Delete(int? id)
         {
             if (id == null)
@@ -96,6 +102,7 @@ namespace NewsWire.Controllers
         // POST: ContactUs/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize("Admin")]
         public IActionResult DeleteConfirmed(int id)
         {
             var contactUs = _context.ContactUs.Find(id);
@@ -108,6 +115,7 @@ namespace NewsWire.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize]
         public bool ContactUsExists(int id)
         {
             return _context.ContactUs.Any(e => e.Id == id);

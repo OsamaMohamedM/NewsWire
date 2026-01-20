@@ -34,68 +34,13 @@
             <a href="index.html" class="logo d-flex align-items-center">
                 <h1 class="sitename">NewsWire</h1>
             </a>
-
             <nav id="navmenu" class="navmenu">
-                <ul>
-                    <li><a href="Home/Index" class="active">Home</a></li>
-                    <li><a href="TeamMembers/Index">Team Member</a></li>
-                    <li><a href="ContactUs/Index">Contact</a></li>
-                    <li><a href="Home/Privacy">Privacy</a></li>
-                </ul>
-                <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+                <partial name="_LoginPartial" />
             </nav>
-
         </div>
 
     </header>
 
-    <main class="main">
-
-        <section id="hero" class="hero section">
-
-            <div id="hero-carousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
-
-                <div class="carousel-item active">
-                    <img src="~/assets/img/hero-carousel/hero-carousel-1.jpg" alt="">
-                    <div class="container">
-                        <h2>Welcome to NewsWire</h2>
-                        <p>Your trusted source for breaking news and in-depth analysis from around the globe.</p>
-                        <a href="#about" class="btn-get-started">Read More</a>
-                    </div>
-                </div>
-
-                <div class="carousel-item">
-                    <img src="~/assets/img/hero-carousel/hero-carousel-2.jpg" alt="">
-                    <div class="container">
-                        <h2>Future Tech</h2>
-                        <p>Stay updated with the latest trends in Artificial Intelligence and technology.</p>
-                        <a href="#about" class="btn-get-started">Read More</a>
-                    </div>
-                </div>
-
-                <div class="carousel-item">
-                    <img src="~/assets/img/hero-carousel/hero-carousel-3.jpg" alt="">
-                    <div class="container">
-                        <h2>Exclusive Reports</h2>
-                        <p>Special coverage and stories directly from the field.</p>
-                        <a href="#about" class="btn-get-started">Read More</a>
-                    </div>
-                </div>
-
-                <a class="carousel-control-prev" href="#hero-carousel" role="button" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon bi bi-chevron-left" aria-hidden="true"></span>
-                </a>
-
-                <a class="carousel-control-next" href="#hero-carousel" role="button" data-bs-slide="next">
-                    <span class="carousel-control-next-icon bi bi-chevron-right" aria-hidden="true"></span>
-                </a>
-
-                <ol class="carousel-indicators"></ol>
-
-            </div>
-
-        </section>
-    </main>
     @RenderBody()
     <footer id="footer" class="footer light-background">
 
