@@ -1,0 +1,41 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using NewsWire.Models
+
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <nav id="navmenu" class="navmenu">
+        <ul>
+            <li><a href="~/Home/Index" class="active">Home</a></li>
+            <li><a href="~/Profile/Index">
+                <i class="bi bi-person-circle me-1"></i>My Profile
+            </a></li>
+            <li><a href="~/TeamMembers/Index">Team Member</a></li>
+            <li><a href="~/ContactUs/Index">Contact</a></li>
+            <li>
+                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                    <button type="submit" class="nav-link">
+                        <i class="bi bi-box-arrow-left me-1"></i>Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+    </nav>
+}
+else
+{
+    <nav id="navmenu" class="navmenu">
+        <ul>
+            <li><a asp-area="Identity" asp-page="/Account/Register">
+                <i class="bi bi-person-plus me-1"></i>Register
+            </a></li>
+            <li><a asp-area="Identity" asp-page="/Account/Login">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+            </a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+    </nav>
+}
