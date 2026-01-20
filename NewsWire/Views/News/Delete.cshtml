@@ -1,0 +1,164 @@
+﻿@model NewsWire.Models.News
+
+@{
+    ViewData["Title"] = "Delete News Article";
+}
+
+@section Styles {
+    <link href="~/assets/css/crud-forms.css" rel="stylesheet">
+}
+
+<!-- Main Content Section -->
+<section class="section py-5">
+    <div class="container" data-aos="fade-up">
+        
+        <!-- Warning Alert -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-10">
+                <div class="alert alert-danger delete-warning" role="alert">
+                    <h5 class="alert-heading mb-3">
+                        <i class="bi bi-shield-exclamation me-2"></i>
+                        Confirm Article Deletion
+                    </h5>
+                    <p class="mb-0">
+                        <strong>Warning:</strong> This action cannot be undone. Deleting this article will permanently remove it from your publication and may affect website functionality.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article Details Card -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card delete-card border-0">
+                    <div class="card-header bg-light border-0 py-4">
+                        <h4 class="card-title mb-0 text-danger">
+                            <i class="bi bi-newspaper me-2"></i>
+                            Article Details
+                        </h4>
+                        <p class="text-muted mb-0 mt-2">Review the article information before deletion</p>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <!-- Article Title -->
+                            <div class="col-md-8 mb-4">
+                                <div class="info-item">
+                                    <label class="form-label fw-bold text-muted mb-2">
+                                        @Html.DisplayNameFor(model => model.Title)
+                                    </label>
+                                    <div class="info-value p-3 bg-light rounded">
+                                        <h5 class="mb-0 text-dark">@Html.DisplayFor(model => model.Title)</h5>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="col-md-4 mb-4">
+                                <div class="info-item">
+                                    <label class="form-label fw-bold text-muted mb-2">
+                                        @Html.DisplayNameFor(model => model.Category)
+                                    </label>
+                                    <div class="info-value p-3 bg-light rounded">
+                                        <span class="badge" style="background-color: var(--accent-color); color: white;">
+                                            @Html.DisplayFor(model => model.Category.Name)
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Article Content -->
+                            <div class="col-12 mb-4">
+                                <div class="info-item">
+                                    <label class="form-label fw-bold text-muted mb-2">
+                                        @Html.DisplayNameFor(model => model.Content)
+                                    </label>
+                                    <div class="info-value p-3 bg-light rounded">
+                                        <p class="mb-0 text-dark">
+                                            @if (Model.Content != null && Model.Content.Length > 200)
+                                            {
+                                                @Html.Raw(Model.Content.Substring(0, 200) + "...")
+                                            }
+                                            else
+                                            {
+                                                @Html.DisplayFor(model => model.Content)
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Published Date & Topic -->
+                            <div class="col-md-6 mb-4">
+                                <div class="info-item">
+                                    <label class="form-label fw-bold text-muted mb-2">
+                                        @Html.DisplayNameFor(model => model.PublishedAt)
+                                    </label>
+                                    <div class="info-value p-3 bg-light rounded">
+                                        <p class="mb-0 text-dark">
+                                            <i class="bi bi-calendar-event me-2"></i>
+                                            @Html.DisplayFor(model => model.PublishedAt)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <div class="info-item">
+                                    <label class="form-label fw-bold text-muted mb-2">
+                                        @Html.DisplayNameFor(model => model.Topic)
+                                    </label>
+                                    <div class="info-value p-3 bg-light rounded">
+                                        <p class="mb-0 text-dark">
+                                            <i class="bi bi-tags me-2"></i>
+                                            @Html.DisplayFor(model => model.Topic)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Image URL -->
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <div class="col-12 mb-4">
+                                    <div class="info-item">
+                                        <label class="form-label fw-bold text-muted mb-2">
+                                            @Html.DisplayNameFor(model => model.ImageUrl)
+                                        </label>
+                                        <div class="info-value p-3 bg-light rounded">
+                                            <p class="mb-2 text-dark text-truncate">@Html.DisplayFor(model => model.ImageUrl)</p>
+                                            <img src="@Model.ImageUrl" alt="Article Image" class="img-thumbnail" style="max-height: 150px;" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row mt-4 pt-4 border-top">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <!-- Back Button -->
+                                    <a asp-action="Index" class="btn btn-secondary px-4 py-2">
+                                        <i class="bi bi-arrow-left me-2"></i>
+                                        Back to Articles
+                                    </a>
+
+                                    <!-- Delete Form -->
+                                    <form asp-action="Delete" class="d-inline">
+                                        <input type="hidden" asp-for="Id" />
+                                        <button type="submit" class="btn btn-danger px-4 py-2" 
+                                                onclick="return confirm('Are you absolutely sure you want to delete this news article? This action cannot be undone.');">
+                                            <i class="bi bi-trash me-2"></i>
+                                            Confirm Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

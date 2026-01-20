@@ -1,0 +1,91 @@
+﻿@model NewsWire.Models.TeamMember
+
+@{
+    ViewData["Title"] = "Create Team Member";
+}
+
+@section Styles {
+    <link href="~/assets/css/crud-forms.css" rel="stylesheet">
+}
+
+<!-- Main Content Section -->
+<section class="section py-5">
+    <div class="container" data-aos="fade-up">
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card form-card">
+                    <div class="card-header bg-light border-0 py-4">
+                        <h4 class="card-title mb-0">
+                            <i class="bi bi-people me-2"></i>
+                            Team Member Information
+                        </h4>
+                        <p class="text-muted mb-0 mt-2">Fill in the team member details</p>
+                    </div>
+                    
+                    <div class="card-body p-5">
+                        <form asp-action="Create">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                            
+                            <div class="row">
+                                <!-- Member Name -->
+                                <div class="col-md-6 mb-4">
+                                    <label asp-for="Name" class="form-label fw-bold" style="color: #555;">
+                                        <i class="bi bi-person me-2"></i>
+                                        @Html.DisplayNameFor(model => model.Name)
+                                    </label>
+                                    <input asp-for="Name" class="form-control form-control-lg" 
+                                           placeholder="Enter member name..." />
+                                    <span asp-validation-for="Name" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Job Title -->
+                                <div class="col-md-6 mb-4">
+                                    <label asp-for="JobTitle" class="form-label fw-bold" style="color: #555;">
+                                        <i class="bi bi-briefcase me-2"></i>
+                                        @Html.DisplayNameFor(model => model.JobTitle)
+                                    </label>
+                                    <input asp-for="JobTitle" class="form-control form-control-lg" 
+                                           placeholder="Enter job title..." />
+                                    <span asp-validation-for="JobTitle" class="text-danger small"></span>
+                                </div>
+
+                                <!-- Profile Image URL -->
+                                <div class="col-12 mb-4">
+                                    <label asp-for="ImageUrl" class="form-label fw-bold" style="color: #555;">
+                                        <i class="bi bi-image me-2"></i>
+                                        @Html.DisplayNameFor(model => model.ImageUrl)
+                                    </label>
+                                    <input asp-for="ImageUrl" class="form-control form-control-lg" 
+                                           placeholder="https://example.com/profile.jpg" />
+                                    <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+                                    <small class="form-text text-muted">Enter the URL for the member's profile image</small>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="row mt-4 pt-4 border-top">
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                        <!-- Back Button -->
+                                        <a asp-action="Index" class="btn btn-secondary px-4 py-2">
+                                            <i class="bi bi-arrow-left me-2"></i>
+                                            Back to Team
+                                        </a>
+
+                                        <!-- Submit Button -->
+                                        <button type="submit" class="btn btn-primary px-4 py-2">
+                                            <i class="bi bi-plus-circle me-2"></i>
+                                            Add Team Member
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+

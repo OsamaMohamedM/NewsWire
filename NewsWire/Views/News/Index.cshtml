@@ -1,0 +1,212 @@
+﻿@model List<NewsWire.Models.News>
+
+@{
+    ViewData["Title"] = "News";
+    var categoryName = Model.FirstOrDefault()?.Category?.Name ?? "Latest News";
+}
+
+@section Styles {
+    <link href="~/assets/css/news.css" rel="stylesheet">
+    <link href="~/assets/css/news-override.css" rel="stylesheet">
+}
+
+<section id="news" class="news section">
+    <div class="container" data-aos="fade-up">
+
+        <div class="section-header text-center mb-5">
+            <h2>@categoryName</h2>
+            <p>Stay updated with the latest news and stories</p>
+
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="row gy-4">
+                @foreach (var newsItem in Model)
+                {
+                    <div class="col-xl-4 col-lg-6" data-aos="fade-up" data-aos-delay="100">
+                        <article class="news-item" data-news-id="@newsItem.Id">
+                            <div class="news-img">
+                                @if (!string.IsNullOrEmpty(newsItem.ImageUrl) && newsItem.ImageUrl != "#")
+                                {
+                                    <img src="@newsItem.ImageUrl" alt="@newsItem.Title" class="img-fluid" loading="lazy">
+                                }
+                                else
+                                {
+                                    <img src="~/assets/img/hero-carousel/hero-carousel-1.jpg" alt="@newsItem.Title" class="img-fluid" loading="lazy">
+                                }
+                                <div class="news-category-badge">
+                                    <span class="badge bg-primary">@(newsItem.Category?.Name ?? "News")</span>
+                                </div>
+                            </div>
+
+                            <div class="news-content">
+                                <div class="news-meta d-flex justify-content-between align-items-center mb-3">
+                                    <div class="news-date">
+                                        <i class="bi bi-calendar-event"></i>
+                                        <time datetime="@newsItem.PublishedAt.ToString("yyyy-MM-dd")">
+                                            @newsItem.PublishedAt.ToString("MMM dd, yyyy")
+                                        </time>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(newsItem.Topic))
+                                    {
+                                        <div class="news-topic">
+                                            <span class="badge bg-secondary">@newsItem.Topic</span>
+                                        </div>
+                                    }
+                                </div>
+
+                                <h3 class="news-title">
+                                    <a href="#" class="text-decoration-none">@newsItem.Title</a>
+                                </h3>
+
+                                <p class="news-excerpt">
+                                    @if (newsItem.Content.Length > 150)
+                                    {
+                                        @(newsItem.Content.Substring(0, 150) + "...")
+                                    }
+                                    else
+                                    {
+                                        @newsItem.Content
+                                    }
+                                </p>
+
+                                <div class="news-footer d-flex justify-content-between align-items-center">
+                                    <a href="#" class="read-more" title="Read full article">
+                                        Read More <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                    <div class="news-actions">
+                                        <a href="#" class="text-muted me-2" title="Add to favorites" aria-label="Add to favorites">
+                                            <i class="bi bi-heart"></i>
+                                        </a>
+                                        <a href="#" class="text-muted me-2" title="Share article" aria-label="Share article">
+                                            <i class="bi bi-share"></i>
+                                        </a>
+                                        <form asp-action="DeleteNews" asp-controller="News" method="post" style="display:inline;">
+                                            <input type="hidden" name="news_id" value="@newsItem.Id" />
+                                            <input type="hidden" name="cat_id" value="@newsItem.CategoryId" />
+
+                                            <button type="submit" class="btn btn-link p-0 text-muted" title="Delete article" onclick="return confirm('Are you sure you want to delete this news?');">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination Navigation -->
+            <nav class="d-flex justify-content-center mt-5" aria-label="News pagination">
+                <ul class="pagination">
+                    @if (ViewBag.HasPreviousPage)
+                    {
+                        <li class="page-item">
+                            <a class="page-link"
+                               asp-controller="News"
+                               asp-action="Index"
+                               asp-route-id="@ViewBag.CategoryId"
+                               asp-route-page="@((ViewBag.CurrentPage ?? 1) - 1)"
+                               aria-label="Previous page">
+                               
+                                <i class="bi bi-chevron-left" aria-hidden="true"></i> Previous
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true" aria-label="Previous page">
+                                <i class="bi bi-chevron-left" aria-hidden="true"></i> Previous
+                            </a>
+                        </li>
+                    }
+
+                    @{
+                        int startPage = Math.Max(1, ViewBag.CurrentPage - 2);
+                        int endPage = Math.Min(ViewBag.TotalPages, ViewBag.CurrentPage + 2);
+                    }
+
+                    @if (startPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" asp-controller="News" asp-action="Index" asp-route-id="@ViewBag.CategoryId" asp-route-page="1" aria-label="Go to page 1">1</a>
+                        </li>
+                        @if (startPage > 2)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        if (i == ViewBag.CurrentPage)
+                        {
+                            <li class="page-item active" aria-current="page">
+                                <a class="page-link" href="#" aria-label="Page @i, current page">@i</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-controller="News" asp-action="Index" asp-route-id="@ViewBag.CategoryId" asp-route-page="@i" aria-label="Go to page @i">@i</a>
+                            </li>
+                        }
+                    }
+
+                    @if (endPage < ViewBag.TotalPages)
+                    {
+                        @if (endPage < ViewBag.TotalPages - 1)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link" asp-controller="News" asp-action="Index" asp-route-id="@ViewBag.CategoryId" asp-route-page="@ViewBag.TotalPages" aria-label="Go to page @ViewBag.TotalPages">@ViewBag.TotalPages</a>
+                        </li>
+                    }
+
+                    @if (ViewBag.HasNextPage)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" asp-controller="News" 
+                            asp-action="Index" asp-route-id="@ViewBag.CategoryId" asp-route-page="@(ViewBag.CurrentPage + 1)" aria-label="Next page">
+                                Next <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true" aria-label="Next page">
+                                Next <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <div class="empty-state">
+                    <i class="bi bi-newspaper display-1 text-muted mb-3"></i>
+                    <h3 class="text-muted">No News Available</h3>
+                    <p class="text-muted">There are currently no news articles in this category.</p>
+                    <a asp-controller="News" asp-action="Index" class="btn btn-primary">
+                        <i class="bi bi-arrow-left"></i> Back to Categories
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/assets/js/news.js"></script>
+}
