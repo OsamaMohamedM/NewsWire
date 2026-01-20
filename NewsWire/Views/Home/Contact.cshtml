@@ -2,6 +2,8 @@
     ViewData["Title"] = "Contact Us";
 }
 
+@model ContactUs
+
 <!-- Page Title -->
 <div class="page-title" data-aos="fade">
     <div class="container">
@@ -18,7 +20,7 @@
                     <i class="bi bi-geo-alt flex-shrink-0"></i>
                     <div>
                         <h3>Address</h3>
-                        <p>123 News Plaza, Media District<br>New York, NY 10001, USA</p>
+                        <p>Madi District<br>Cairo , NY 10001, Egy</p>
                     </div>
                 </div><!-- End Info Item -->
 
@@ -26,7 +28,7 @@
                     <i class="bi bi-telephone flex-shrink-0"></i>
                     <div>
                         <h3>Call Us</h3>
-                        <p>+1 (555) 123-4567</p>
+                        <p>+201129582150</p>
                     </div>
                 </div><!-- End Info Item -->
 
@@ -34,7 +36,7 @@
                     <i class="bi bi-envelope flex-shrink-0"></i>
                     <div>
                         <h3>Email Us</h3>
-                        <p>newsroom@newswire.com</p>
+                        <p>osamamhd65@gmail.com</p>
                     </div>
                 </div><!-- End Info Item -->
 
@@ -42,41 +44,29 @@
                     <i class="bi bi-clock flex-shrink-0"></i>
                     <div>
                         <h3>Open Hours</h3>
-                        <p>Newsroom operates 24/7<br>Office: Mon-Fri 9AM-6PM EST</p>
+                        <p>Newsroom operates 24/7<br>Office: Sat-Thrus 9AM-6PM EST</p>
                     </div>
                 </div><!-- End Info Item -->
             </div>
 
             <!-- Contact Form -->
             <div class="col-lg-8">
-                <form action="#" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+                <form asp-action="SaveContact" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
                     <div class="row gy-4">
                         <div class="col-md-6">
-                            <input type="text" name="name" class="form-control" placeholder="Your Name" required="">
+                            <input type="text" asp-for="Name" class="form-control" placeholder="Your Name" required="">
                         </div>
 
                         <div class="col-md-6">
-                            <input type="email" class="form-control" name="email" placeholder="Your Email" required="">
+                            <input type="email" class="form-control" asp-for="Email" placeholder="Your Email" required="">
                         </div>
 
                         <div class="col-12">
-                            <input type="text" class="form-control" name="subject" placeholder="Subject" required="">
+                            <input type="text" class="form-control" asp-for="Subject" placeholder="Subject" required="">
                         </div>
 
                         <div class="col-12">
-                            <select class="form-control" name="inquiry_type" required="">
-                                <option value="">Select Inquiry Type</option>
-                                <option value="news_tip">News Tip</option>
-                                <option value="press_release">Press Release</option>
-                                <option value="interview_request">Interview Request</option>
-                                <option value="correction">Correction Request</option>
-                                <option value="general">General Inquiry</option>
-                                <option value="careers">Careers</option>
-                            </select>
-                        </div>
-
-                        <div class="col-12">
-                            <textarea class="form-control" name="message" rows="6" placeholder="Message" required=""></textarea>
+                            <textarea class="form-control" asp-for="Message" rows="6" placeholder="Message" required=""></textarea>
                         </div>
 
                         <div class="col-12 text-center">
@@ -130,28 +120,9 @@
 
         <div class="row mt-4">
             <div class="col-lg-12 text-center">
-                <h5>Emergency News Hotline: +1 (555) NEWS-911</h5>
+                <h5>Emergency News Hotline: +21196</h5>
                 <p>For urgent breaking news, call our 24/7 newsroom hotline</p>
             </div>
         </div>
     </div>
 </section><!-- /News Tips Section -->
-<!-- Social Media Section -->
-<section id="social-media" class="social-media section">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12 text-center" data-aos="fade-up">
-                <h2>Follow Us on Social Media</h2>
-                <p>Stay connected with NEWSWIRE across all platforms for real-time updates and behind-the-scenes content</p>
-
-                <div class="social-links d-flex justify-content-center mt-4">
-                    <a href="#" class="mx-3"><i class="bi bi-twitter-x"></i> <span>@@NewsWireOfficial</span></a>
-                    <a href="#" class="mx-3"><i class="bi bi-facebook"></i> <span>NewsWire</span></a>
-                    <a href="#" class="mx-3"><i class="bi bi-instagram"></i> <span>@@newswire_media</span></a>
-                    <a href="#" class="mx-3"><i class="bi bi-linkedin"></i> <span>NewsWire Media</span></a>
-                    <a href="#" class="mx-3"><i class="bi bi-youtube"></i> <span>NewsWire TV</span></a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section><!-- /Social Media Section -->

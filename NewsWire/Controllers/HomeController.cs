@@ -36,6 +36,18 @@ namespace NewsWire.Controllers
             return View();
         }
 
+        [HttpPost]
+        public IActionResult SaveContact(ContactUs contactUs)
+        {
+            if (ModelState.IsValid)
+            {
+                db.ContactUs.Add(contactUs);
+                db.SaveChanges();
+                return Content("OK");
+            }
+            return View(contactUs);
+        }
+
         public IActionResult Contact()
         {
             return View();
