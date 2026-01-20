@@ -13,5 +13,8 @@
 
         public Category Category { get; set; }
         public int CategoryId { get; set; }
+
+        public User? Author { get; set; }
+        public string? AuthorId { get; set; }
     }
 }

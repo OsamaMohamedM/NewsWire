@@ -32,6 +32,11 @@ namespace NewsWire.Data.ModelsConfiguration
                    .HasConstraintName("FK_News_Category")
                    .HasForeignKey(n => n.CategoryId)
                    .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(n => n.Author)
+                   .WithMany(n => n.news)
+                   .HasConstraintName("FK_News_User")
+                   .HasForeignKey(n => n.AuthorId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
