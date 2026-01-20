@@ -1,6 +1,4 @@
-﻿
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -25,6 +23,7 @@
     <link href="~/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
 
     <link href="~/assets/css/main.css" rel="stylesheet">
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body class="index-page">
@@ -46,8 +45,6 @@
                 </ul>
                 <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
             </nav>
-
-        </div>
 
         </div>
 
@@ -135,6 +132,7 @@
     <script src="~/assets/vendor/swiper/swiper-bundle.min.js"></script>
 
     <script src="~/assets/js/main.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
 
