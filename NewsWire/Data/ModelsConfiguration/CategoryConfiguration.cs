@@ -1,0 +1,21 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NewsWire.Models;
+
+namespace NewsWire.Data.ModelsConfiguration
+{
+    public class CategoryConfiguration : IEntityTypeConfiguration<Category>
+    {
+        public void Configure(EntityTypeBuilder<Category> builder)
+        {
+           builder.ToTable("Categories");
+            builder.HasKey(c => c.Id);
+            builder.Property(c => c.Name)
+                   .IsRequired()
+                   .HasMaxLength(40);
+            builder.Property(c => c.Description)
+                   .HasMaxLength(200)
+                   .IsRequired();
+        }
+    }
+}
