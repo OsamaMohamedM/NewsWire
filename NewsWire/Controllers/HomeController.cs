@@ -1,14 +1,24 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using NewsWire.Data;
 using NewsWire.Models;
+using System.Diagnostics;
 
 namespace NewsWire.Controllers
 {
     public class HomeController : Controller
     {
+        private NewsDbContext db;
+
+        public HomeController(NewsDbContext dbContext)
+        {
+            db = dbContext;
+        }
+
         public IActionResult Index()
         {
-            return View();
+            var categories = db.Set<Category>().ToList();
+            return View(categories);
         }
 
         public IActionResult About()
