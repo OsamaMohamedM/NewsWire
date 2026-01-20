@@ -83,21 +83,29 @@
      * Share functionality
      */
     function initializeShareFunctionality() {
-        const shareButtons = document.querySelectorAll('.news-actions a[title*="share"], .news-actions a:last-child');
+        
+        const shareButtons = document.querySelectorAll('.news-actions a[title="Share article"]');
 
         shareButtons.forEach(button => {
+            
+            if (button.querySelector('.bi-pencil-square') || button.querySelector('.bi-trash')) return;
+
             button.addEventListener('click', function (e) {
                 e.preventDefault();
 
                 const newsItem = this.closest('.news-item');
-                const title = newsItem.querySelector('.news-title a').textContent;
+               
+                if (!newsItem) return;
+
+                const titleElement = newsItem.querySelector('.news-title a');
+                const title = titleElement ? titleElement.textContent : 'News Article';
                 const url = window.location.href;
 
                 if (navigator.share) {
                     navigator.share({
                         title: title,
                         url: url
-                    });
+                    }).catch(console.error);
                 } else {
                     copyToClipboard(url);
                     showToast('Link copied to clipboard!');
@@ -105,7 +113,6 @@
             });
         });
     }
-
     /**
      * Favorites functionality
      */

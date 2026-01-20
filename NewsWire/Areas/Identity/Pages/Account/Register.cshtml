@@ -1,0 +1,143 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+@section Styles {
+    <link href="~/assets/css/account-pages.css" rel="stylesheet">
+}
+
+<div class="account-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card account-card">
+                    <div class="account-card-header">
+                        <h1>
+                            <i class="bi bi-person-plus me-2"></i>
+                            Join NewsWire
+                        </h1>
+                        <p>Create your account and start exploring</p>
+                    </div>
+
+                    <div class="account-card-body">
+                        <div class="row">
+                            <!-- Registration Form -->
+                            <div class="col-lg-6 mb-4">
+                                <section>
+                                    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                        <h3 class="mb-4 text-center" style="color: var(--accent-color);">
+                                            <i class="bi bi-person-circle me-2"></i>
+                                            Create New Account
+                                        </h3>
+
+                                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" role="alert"></div>
+
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                                            <label asp-for="Input.Email">
+                                                <i class="bi bi-envelope me-2"></i>Email Address
+                                            </label>
+                                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                                            <label asp-for="Input.Password">
+                                                <i class="bi bi-lock me-2"></i>Password
+                                            </label>
+                                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="form-floating mb-4">
+                                            <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                                            <label asp-for="Input.ConfirmPassword">
+                                                <i class="bi bi-shield-check me-2"></i>Confirm Password
+                                            </label>
+                                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="d-grid mb-4">
+                                            <button id="registerSubmit" type="submit" class="btn btn-primary btn-lg">
+                                                <i class="bi bi-person-plus me-2"></i>
+                                                Create Account
+                                            </button>
+                                        </div>
+
+                                        <div class="account-links text-center">
+                                            <div>
+                                                <span class="text-muted">Already have an account? </span>
+                                                <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">
+                                                    <i class="bi bi-box-arrow-in-right me-1"></i>
+                                                    Sign In
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </section>
+                            </div>
+
+                            <!-- External Registration -->
+                            <div class="col-lg-6">
+                                <section class="external-login-section h-100">
+                                    <h3>
+                                        <i class="bi bi-globe2 me-2"></i>
+                                        Quick Registration
+                                    </h3>
+                                    @{
+                                        if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                                        {
+                                            <div class="text-center py-4">
+                                                <div class="mb-3">
+                                                    <i class="bi bi-shield-check" style="font-size: 3rem; color: var(--accent-color);"></i>
+                                                </div>
+                                                <h5>Secure Registration</h5>
+                                                <p class="text-muted">
+                                                    Your account will be protected with industry-standard security measures.
+                                                    External authentication services are not currently configured.
+                                                </p>
+                                                <div class="mt-4">
+                                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                        <small>Email verification required</small>
+                                                    </div>
+                                                    <div class="d-flex align-items-center justify-content-center mb-2">
+                                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                        <small>Secure password encryption</small>
+                                                    </div>
+                                                    <div class="d-flex align-items-center justify-content-center">
+                                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                        <small>Privacy protection guaranteed</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                                <div class="d-grid gap-2">
+                                                    @foreach (var provider in Model.ExternalLogins!)
+                                                    {
+                                                        <button type="submit" class="btn btn-outline-primary" name="provider" value="@provider.Name" title="Register using your @provider.DisplayName account">
+                                                            <i class="bi bi-person-plus me-2"></i>
+                                                            Register with @provider.DisplayName
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </form>
+                                        }
+                                    }
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

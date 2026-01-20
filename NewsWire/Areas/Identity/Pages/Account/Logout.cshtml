@@ -1,0 +1,81 @@
+﻿@page
+@model LogoutModel
+@{
+    ViewData["Title"] = "Sign Out";
+}
+
+@section Styles {
+    <link href="~/assets/css/account-pages.css" rel="stylesheet">
+}
+
+<div class="account-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card account-card">
+                    <div class="account-card-header">
+                        <h1>
+                            <i class="bi bi-box-arrow-left me-2"></i>
+                            Sign Out
+                        </h1>
+                        <p>Securely log out from your account</p>
+                    </div>
+                    
+                    <div class="account-card-body text-center">
+                        @{
+                            if (User.Identity?.IsAuthenticated ?? false)
+                            {
+                                <div class="mb-4">
+                                    <i class="bi bi-person-circle" style="font-size: 4rem; color: var(--accent-color);"></i>
+                                </div>
+                                <h3 class="mb-3" style="color: var(--accent-color);">
+                                    Ready to Sign Out?
+                                </h3>
+                                <p class="text-muted mb-4">
+                                    You are currently signed in. Click the button below to securely log out from your NewsWire account.
+                                </p>
+                                
+                                <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        <i class="bi bi-box-arrow-left me-2"></i>
+                                        Sign Out Now
+                                    </button>
+                                </form>
+                                
+                                <div class="account-links mt-4">
+                                    <a href="/">
+                                        <i class="bi bi-house me-1"></i>
+                                        Return to Home
+                                    </a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mb-4">
+                                    <i class="bi bi-check-circle" style="font-size: 4rem; color: #28a745;"></i>
+                                </div>
+                                <h3 class="mb-3 text-success">
+                                    Successfully Signed Out
+                                </h3>
+                                <p class="text-muted mb-4">
+                                    You have been successfully logged out from your NewsWire account. Your session has ended securely.
+                                </p>
+                                
+                                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                                    <a href="/" class="btn btn-outline-primary">
+                                        <i class="bi bi-house me-2"></i>
+                                        Go to Home
+                                    </a>
+                                    <a asp-page="./Login" class="btn btn-primary">
+                                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                                        Sign In Again
+                                    </a>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
