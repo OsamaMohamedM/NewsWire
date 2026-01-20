@@ -1,29 +1,119 @@
-﻿@model List<NewsWire.Models.Category>
-<section id="featured-services" class="featured-services section">
+﻿@{
+    ViewData["Title"] = "About Us";
+}
 
+<!-- About Section -->
+<section id="about" class="about section">
     <div class="container">
-
         <div class="row gy-4">
-            @foreach (var item in Model)
-            {
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+                <h3>Your Trusted News Partner Since 2024</h3>
+                <img src="~/assets/img/about.jpg" class="img-fluid rounded-4 mb-4" alt="About NEWSWIRE">
+                <p>
+                    NEWSWIRE is committed to delivering accurate, timely, and unbiased news coverage to our global audience.
+                    Our mission is to keep you informed about the events that shape our world, from breaking news to
+                    in-depth investigative reporting.
+                </p>
+                <p>
+                    We believe in the power of journalism to inform, educate, and inspire positive change in society.
+                    Our team of experienced journalists and editors work around the clock to bring you comprehensive
+                    coverage of local, national, and international news.
+                </p>
+            </div>
 
-                    <div class="col-xl-3 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="100">
-                <a href="Home/News/@item.Id">
-                        <div class="service-item position-relative">
-                            <div class="icon"><i class="fas fa-heartbeat icon"></i></div>
-                            <h4>@item.Name</h4>
-                            <p>@item.Description</p>
-                        </div>
-                        </a>
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="250">
+                <div class="content ps-0 ps-lg-5">
+                    <h4>Our Core Values</h4>
+                    <ul>
+                        <li><i class="bi bi-check-circle-fill"></i> <span><strong>Accuracy:</strong> We verify every story before publication</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span><strong>Transparency:</strong> We maintain clear editorial standards</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span><strong>Independence:</strong> We report without bias or external influence</span></li>
+                        <li><i class="bi bi-check-circle-fill"></i> <span><strong>Responsibility:</strong> We consider the impact of our reporting</span></li>
+                    </ul>
+
+                    <div class="position-relative mt-4">
+                        <img src="~/assets/img/about.jpg" class="img-fluid rounded-4" alt="Our newsroom">
+                        <a href="https://www.youtube.com/watch?v=LXb3EKWsInQ" class="glightbox play-btn"></a>
                     </div>
-                
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!-- /About Section -->
+<!-- Stats Section -->
+<section id="stats" class="stats section">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="stats-item d-flex align-items-center w-100 h-100">
+                    <i class="bi bi-newspaper color-blue flex-shrink-0"></i>
+                    <div>
+                        <span data-purecounter-start="0" data-purecounter-end="1200" data-purecounter-duration="1" class="purecounter"></span>
+                        <p>Daily Articles</p>
+                    </div>
+                </div>
+            </div><!-- End Stats Item -->
 
-                <!-- End Service Item -->
-            }
+            <div class="col-lg-3 col-md-6">
+                <div class="stats-item d-flex align-items-center w-100 h-100">
+                    <i class="bi bi-people color-orange flex-shrink-0"></i>
+                    <div>
+                        <span data-purecounter-start="0" data-purecounter-end="50000" data-purecounter-duration="1" class="purecounter"></span>
+                        <p>Daily Readers</p>
+                    </div>
+                </div>
+            </div><!-- End Stats Item -->
+
+            <div class="col-lg-3 col-md-6">
+                <div class="stats-item d-flex align-items-center w-100 h-100">
+                    <i class="bi bi-globe color-green flex-shrink-0"></i>
+                    <div>
+                        <span data-purecounter-start="0" data-purecounter-end="150" data-purecounter-duration="1" class="purecounter"></span>
+                        <p>Countries Covered</p>
+                    </div>
+                </div>
+            </div><!-- End Stats Item -->
+
+            <div class="col-lg-3 col-md-6">
+                <div class="stats-item d-flex align-items-center w-100 h-100">
+                    <i class="bi bi-award color-pink flex-shrink-0"></i>
+                    <div>
+                        <span data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1" class="purecounter"></span>
+                        <p>Journalism Awards</p>
+                    </div>
+                </div>
+            </div><!-- End Stats Item -->
+        </div>
+    </div>
+</section><!-- /Stats Section -->
+<!-- Mission Section -->
+<section id="mission" class="mission section light-background">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center" data-aos="fade-up">
+                <h2>Our Mission</h2>
+                <p>To inform, educate, and empower our readers through accurate, timely, and comprehensive news coverage</p>
+            </div>
         </div>
 
+        <div class="row mt-5">
+            <div class="col-md-4 text-center" data-aos="fade-up" data-aos-delay="100">
+                <i class="bi bi-eye display-4 text-primary mb-3"></i>
+                <h4>Vision</h4>
+                <p>To be the world's most trusted and accessible news source, fostering informed global citizenship.</p>
+            </div>
+
+            <div class="col-md-4 text-center" data-aos="fade-up" data-aos-delay="200">
+                <i class="bi bi-bullseye display-4 text-primary mb-3"></i>
+                <h4>Mission</h4>
+                <p>To deliver accurate, unbiased news that empowers people to make informed decisions about their world.</p>
+            </div>
+
+            <div class="col-md-4 text-center" data-aos="fade-up" data-aos-delay="300">
+                <i class="bi bi-heart display-4 text-primary mb-3"></i>
+                <h4>Values</h4>
+                <p>Integrity, accuracy, independence, and a commitment to serving the public interest through quality journalism.</p>
+            </div>
+        </div>
     </div>
-
-</section>
-
-<!-- /Featured Services Section -->
+</section><!-- /Mission Section -->
