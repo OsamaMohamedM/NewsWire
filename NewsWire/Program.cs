@@ -30,6 +30,10 @@ builder.Services.AddIdentity<CustomUser, IdentityRole>(
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 builder.Services.AddScoped<INewsManagementService, NewsManagementService>();
+builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IContactService, ContactService>();
+builder.Services.AddScoped<INewsService, NewsService>();
 
 builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();

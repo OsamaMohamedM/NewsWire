@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Our Team";
+    ViewData["Title"] = "Project Creator";
 }
 
 <!-- Team Section -->
@@ -7,190 +7,121 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center" data-aos="fade-up">
-                <h2>Our Editorial Team</h2>
-                <p>Meet the dedicated professionals who bring you the news every day</p>
+                <h2>Project Creator</h2>
+                <p>Meet the developer behind NewsWire</p>
             </div>
         </div>
 
-        <div class="row gy-4">
-            <!-- Team Member 1 -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="team-member">
-                    <div class="member-img">
-                        <img src="~/assets/img/doctors/doctors-1.jpg" class="img-fluid" alt="Sarah Johnson">
-                        <div class="social">
-                            <a href="#"><i class="bi bi-twitter-x"></i></a>
-                            <a href="#"><i class="bi bi-facebook"></i></a>
-                            <a href="#"><i class="bi bi-instagram"></i></a>
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
+        <!-- Single Team Member Card -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-10" data-aos="fade-up" data-aos-delay="100">
+                <div class="card shadow-lg border-0" style="border-radius: 15px; overflow: hidden;">
+                    <div class="row g-0">
+                        <!-- Image Section -->
+                        <div class="col-md-5" style="background: linear-gradient(135deg, #3fbbc0 0%, #2fa9ae 100%); display: flex; align-items: center; justify-content: center; padding: 40px;">
+                            <div class="text-center">
+                                <img src="~/assets/img/Local/osama.jpg" 
+                                     class="img-fluid rounded-circle shadow-lg" 
+                                     alt="Osama Mohamed" 
+                                     style="width: 300px; height: 300px; object-fit: cover; border: 8px solid white;"
+                                     onerror="this.onerror=null; this.src='~/assets/img/Local/default-avatar.jpg';">
+                                <div class="social mt-4">
+                                    <a href="https://github.com/OsamaMohamedM" target="_blank" class="btn btn-light btn-lg rounded-circle mx-2" style="width: 50px; height: 50px; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-github" style="font-size: 24px; color: #3fbbc0;"></i>
+                                    </a>
+                                    <a href="https://www.linkedin.com/in/osama-mohamed-266541261/" target="_blank" class="btn btn-light btn-lg rounded-circle mx-2" style="width: 50px; height: 50px; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-linkedin" style="font-size: 24px; color: #3fbbc0;"></i>
+                                    </a>
+                                    <a href="mailto:osamamhd65@gmail.com" class="btn btn-light btn-lg rounded-circle mx-2" style="width: 50px; height: 50px; display: inline-flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-envelope" style="font-size: 24px; color: #3fbbc0;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Details Section -->
+                        <div class="col-md-7">
+                            <div class="card-body p-5">
+                                <h2 class="card-title mb-2" style="color: #3fbbc0; font-weight: 700;">Osama Mohamed</h2>
+                                <h5 class="text-muted mb-4">Back-End Developer & Project Creator</h5>
+                                
+                                <div class="mb-4">
+                                    <p class="lead" style="line-height: 1.8;">
+                                        Passionate software developer specializing in ASP.NET Core, Entity Framework, and modern web technologies. 
+                                        Created NewsWire as a comprehensive news management platform with advanced features and beautiful UI.
+                                    </p>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <h5 class="mb-3" style="color: #3fbbc0;">
+                                    <i class="bi bi-code-slash me-2"></i>Technical Skills
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <ul class="list-unstyled">
+                                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>ASP.NET Core MVC</li>
+                                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Entity Framework Core</li>
+                                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>C# .NET 10</li>
+                                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>SQL Server</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <ul class="list-unstyled">
+                                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Bootstrap 5 & CSS3</li>
+                                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>JavaScript & jQuery</li>
+                                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Razor Pages</li>
+                                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Git & GitHub</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <h5 class="mb-3" style="color: #3fbbc0;">
+                                    <i class="bi bi-trophy me-2"></i>Project Highlights
+                                </h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="bi bi-star-fill text-warning me-2"></i>Complete Admin Panel with Dashboard</li>
+                                    <li class="mb-2"><i class="bi bi-star-fill text-warning me-2"></i>User Authentication & Role Management</li>
+                                    <li class="mb-2"><i class="bi bi-star-fill text-warning me-2"></i>CRUD Operations for All Entities</li>
+                                    <li class="mb-2"><i class="bi bi-star-fill text-warning me-2"></i>Responsive Design & Beautiful UI</li>
+                                    <li class="mb-2"><i class="bi bi-star-fill text-warning me-2"></i>Image Upload & File Management</li>
+                                </ul>
+
+                                <div class="mt-4">
+                                    <a href="https://github.com/OsamaMohamedM/NewsWire" target="_blank" class="btn btn-lg px-5" style="background: #3fbbc0; color: white; border-radius: 25px;">
+                                        <i class="bi bi-github me-2"></i>View Project on GitHub
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="member-info">
-                        <h4>Sarah Johnson</h4>
-                        <span>Editor-in-Chief</span>
-                        <p>With over 15 years in journalism, Sarah leads our editorial team with a focus on investigative reporting and global news coverage.</p>
-                    </div>
                 </div>
-            </div><!-- End Team Member -->
-            <!-- Team Member 2 -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                <div class="team-member">
-                    <div class="member-img">
-                        <img src="~/assets/img/doctors/doctors-1.jpg" class="img-fluid" alt="Michael Chen">
-                        <div class="social">
-                            <a href="#"><i class="bi bi-twitter-x"></i></a>
-                            <a href="#"><i class="bi bi-facebook"></i></a>
-                            <a href="#"><i class="bi bi-instagram"></i></a>
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
+            </div>
+        </div>
+
+        <!-- Additional Info Section -->
+        <div class="row mt-5">
+            <div class="col-lg-12">
+                <div class="card shadow-sm border-0" style="border-radius: 15px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                    <div class="card-body p-5 text-center">
+                        <h4 style="color: #3fbbc0;">About This Project</h4>
+                        <p class="lead mt-3">
+                            NewsWire is a modern news management system built with ASP.NET Core MVC, featuring a complete admin panel, 
+                            user authentication, file upload capabilities, and a responsive design. This project demonstrates 
+                            full-stack development skills including database design, backend logic, and frontend implementation.
+                        </p>
+                        <div class="mt-4">
+                            <span class="badge bg-primary mx-1 p-2">ASP.NET Core</span>
+                            <span class="badge bg-success mx-1 p-2">Entity Framework</span>
+                            <span class="badge bg-info mx-1 p-2">Bootstrap 5</span>
+                            <span class="badge bg-warning mx-1 p-2">SQL Server</span>
+                            <span class="badge bg-danger mx-1 p-2">Identity Framework</span>
                         </div>
                     </div>
-                    <div class="member-info">
-                        <h4>Michael Chen</h4>
-                        <span>Senior Political Reporter</span>
-                        <p>Michael specializes in political analysis and government reporting, bringing complex political stories to life for our readers.</p>
-                    </div>
                 </div>
-            </div><!-- End Team Member -->
-            <!-- Team Member 3 -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                <div class="team-member">
-                    <div class="member-img">
-                        <img src="~/assets/img/doctors/doctors-1.jpg" class="img-fluid" alt="Emily Rodriguez">
-                        <div class="social">
-                            <a href="#"><i class="bi bi-twitter-x"></i></a>
-                            <a href="#"><i class="bi bi-facebook"></i></a>
-                            <a href="#"><i class="bi bi-instagram"></i></a>
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
-                        </div>
-                    </div>
-                    <div class="member-info">
-                        <h4>Emily Rodriguez</h4>
-                        <span>Technology Correspondent</span>
-                        <p>Emily covers the latest in technology, innovation, and digital trends that are shaping our future.</p>
-                    </div>
-                </div>
-            </div><!-- End Team Member -->
-            <!-- Team Member 4 -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-                <div class="team-member">
-                    <div class="member-img">
-                        <img src="~/assets/img/doctors/doctors-1.jpg" class="img-fluid" alt="David Thompson">
-                        <div class="social">
-                            <a href="#"><i class="bi bi-twitter-x"></i></a>
-                            <a href="#"><i class="bi bi-facebook"></i></a>
-                            <a href="#"><i class="bi bi-instagram"></i></a>
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
-                        </div>
-                    </div>
-                    <div class="member-info">
-                        <h4>David Thompson</h4>
-                        <span>Sports Editor</span>
-                        <p>David brings you comprehensive sports coverage from local leagues to international championships.</p>
-                    </div>
-                </div>
-            </div><!-- End Team Member -->
-            <!-- Team Member 5 -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="500">
-                <div class="team-member">
-                    <div class="member-img">
-                        <img src="~/assets/img/doctors/doctors-1.jpg" class="img-fluid" alt="Lisa Park">
-                        <div class="social">
-                            <a href="#"><i class="bi bi-twitter-x"></i></a>
-                            <a href="#"><i class="bi bi-facebook"></i></a>
-                            <a href="#"><i class="bi bi-instagram"></i></a>
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
-                        </div>
-                    </div>
-                    <div class="member-info">
-                        <h4>Lisa Park</h4>
-                        <span>International Correspondent</span>
-                        <p>Lisa reports from around the globe, covering international affairs and breaking news from different continents.</p>
-                    </div>
-                </div>
-            </div><!-- End Team Member -->
-            <!-- Team Member 6 -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="600">
-                <div class="team-member">
-                    <div class="member-img">
-                        <img src="~/assets/img/doctors/doctors-1.jpg" class="img-fluid" alt="James Wilson">
-                        <div class="social">
-                            <a href="#"><i class="bi bi-twitter-x"></i></a>
-                            <a href="#"><i class="bi bi-facebook"></i></a>
-                            <a href="#"><i class="bi bi-instagram"></i></a>
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
-                        </div>
-                    </div>
-                    <div class="member-info">
-                        <h4>James Wilson</h4>
-                        <span>Business Reporter</span>
-                        <p>James covers financial markets, business trends, and economic developments that affect our daily lives.</p>
-                    </div>
-                </div>
-            </div><!-- End Team Member -->
-            <!-- Team Member 7 -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="700">
-                <div class="team-member">
-                    <div class="member-img">
-                        <img src="~/assets/img/doctors/doctors-1.jpg" class="img-fluid" alt="Maria Garcia">
-                        <div class="social">
-                            <a href="#"><i class="bi bi-twitter-x"></i></a>
-                            <a href="#"><i class="bi bi-facebook"></i></a>
-                            <a href="#"><i class="bi bi-instagram"></i></a>
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
-                        </div>
-                    </div>
-                    <div class="member-info">
-                        <h4>Maria Garcia</h4>
-                        <span>Health & Science Writer</span>
-                        <p>Maria specializes in health, medical breakthroughs, and scientific discoveries that impact our understanding of the world.</p>
-                    </div>
-                </div>
-            </div><!-- End Team Member -->
-            <!-- Team Member 8 -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="800">
-                <div class="team-member">
-                    <div class="member-img">
-                        <img src="~/assets/img/doctors/doctors-1.jpg" class="img-fluid" alt="Robert Kim">
-                        <div class="social">
-                            <a href="#"><i class="bi bi-twitter-x"></i></a>
-                            <a href="#"><i class="bi bi-facebook"></i></a>
-                            <a href="#"><i class="bi bi-instagram"></i></a>
-                            <a href="#"><i class="bi bi-linkedin"></i></a>
-                        </div>
-                    </div>
-                    <div class="member-info">
-                        <h4>Robert Kim</h4>
-                        <span>Environmental Reporter</span>
-                        <p>Robert focuses on environmental issues, climate change, and sustainability stories that matter for our planet's future.</p>
-                    </div>
-                </div>
-            </div><!-- End Team Member -->
+            </div>
         </div>
     </div>
 </section><!-- /Team Section -->
-<!-- Careers Section -->
-<section id="careers" class="careers section light-background">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12 text-center" data-aos="fade-up">
-                <h2>Join Our Team</h2>
-                <p>We're always looking for talented journalists and media professionals to join our growing team</p>
-
-                <div class="row mt-4">
-                    <div class="col-md-6 offset-md-3">
-                        <div class="career-info">
-                            <h4>Current Openings</h4>
-                            <ul class="list-unstyled">
-                                <li><i class="bi bi-check-circle-fill"></i> Investigative Journalist</li>
-                                <li><i class="bi bi-check-circle-fill"></i> Video Editor</li>
-                                <li><i class="bi bi-check-circle-fill"></i> Social Media Manager</li>
-                                <li><i class="bi bi-check-circle-fill"></i> Copy Editor</li>
-                            </ul>
-                            <a href="@Url.Action("Contact", "Home")" class="btn btn-primary">Apply Now</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section><!-- /Careers Section -->

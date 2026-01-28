@@ -1,4 +1,7 @@
-﻿namespace NewsWire.Models
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace NewsWire.Models
 {
     public class News
     {
@@ -16,5 +19,9 @@
 
         public CustomUser? Author { get; set; }
         public string? AuthorId { get; set; }
+
+        [NotMapped]
+        [DisplayName("Upload Image")]
+        public IFormFile? ImageFile { get; set; }
     }
 }

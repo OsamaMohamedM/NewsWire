@@ -1,24 +1,32 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NewsWire.Data;
 using NewsWire.Models;
-using System.Diagnostics;
+using NewsWire.Services;
 
 namespace NewsWire.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
-        private NewsDbContext db;
+        private readonly ICategoryService _categoryService;
 
-        public HomeController(NewsDbContext dbContext)
+        public HomeController(
+            ICategoryService categoryService,
+            ILogger<HomeController> logger) : base(logger)
         {
-            db = dbContext;
+            _categoryService = categoryService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var categories = db.Set<Category>().ToList();
-            return View(categories);
+            try
+            {
+                var categories = await _categoryService.GetAllCategoriesAsync();
+                return View(categories);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading home page");
+                return View(new List<Category>()); // Return empty list on error
+            }
         }
 
         public IActionResult Contact()
@@ -29,7 +37,9 @@ namespace NewsWire.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var requestId = System.Diagnostics.Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            _logger.LogError("Error page displayed for request: {RequestId}", requestId);
+            return View(new ErrorViewModel { RequestId = requestId });
         }
     }
 }

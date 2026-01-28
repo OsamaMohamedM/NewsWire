@@ -24,9 +24,10 @@
                     </div>
                     
                     <div class="card-body p-5">
-                        <form asp-action="Edit">
+                        <form asp-action="Edit" method="post" enctype="multipart/form-data">
                             <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
                             <input type="hidden" asp-for="Id" />
+                            <input type="hidden" asp-for="PublishedAt" />
                             
                             <div class="row">
                                 <!-- Article Title -->
@@ -63,25 +64,29 @@
                                     <span asp-validation-for="Content" class="text-danger small"></span>
                                 </div>
 
-                                <!-- Image URL -->
-                                <div class="col-md-4 mb-4">
-                                    <label asp-for="ImageUrl" class="form-label fw-bold" style="color: #555;">
-                                        <i class="bi bi-image me-2"></i>
-                                        @Html.DisplayNameFor(model => model.ImageUrl)
-                                    </label>
-                                    <input asp-for="ImageUrl" class="form-control form-control-lg" 
-                                           placeholder="https://example.com/image.jpg" />
-                                    <span asp-validation-for="ImageUrl" class="text-danger small"></span>
-                                </div>
+                                <!-- Current Image Display -->
+                                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                {
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label fw-bold" style="color: #555;">
+                                            <i class="bi bi-image me-2"></i>
+                                            Current Image
+                                        </label>
+                                        <div>
+                                            <img src="@Model.ImageUrl" alt="Current Image" class="img-thumbnail" style="max-height: 200px;" />
+                                        </div>
+                                    </div>
+                                }
 
-                                <!-- Published Date -->
-                                <div class="col-md-4 mb-4">
-                                    <label asp-for="PublishedAt" class="form-label fw-bold" style="color: #555;">
-                                        <i class="bi bi-calendar-event me-2"></i>
-                                        @Html.DisplayNameFor(model => model.PublishedAt)
+                                <!-- Upload New Image -->
+                                <div class="col-md-8 mb-4">
+                                    <label asp-for="ImageFile" class="form-label fw-bold" style="color: #555;">
+                                        <i class="bi bi-upload me-2"></i>
+                                        Upload New Image (Optional)
                                     </label>
-                                    <input asp-for="PublishedAt" class="form-control form-control-lg" type="datetime-local" />
-                                    <span asp-validation-for="PublishedAt" class="text-danger small"></span>
+                                    <input asp-for="ImageFile" class="form-control" accept="image/*" />
+                                    <span asp-validation-for="ImageFile" class="text-danger small"></span>
+                                    <small class="text-muted">Leave empty to keep current image</small>
                                 </div>
 
                                 <!-- Topic -->

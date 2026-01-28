@@ -71,15 +71,31 @@
                                         </label>
                                         <div class="info-value">
                                             <img src="@Model.News.ImageUrl" alt="@Model.News.Title" 
-                                                 class="img-fluid rounded shadow-sm" style="width: 100%; max-height: 300px; object-fit: cover;" />
+                                                 class="img-fluid rounded shadow-sm" style="width: 100%; max-height: 300px; object-fit: cover;" 
+                                                 onerror="this.onerror=null; this.src='/assets/img/Local/default-news.jpg';" />
                                             <small class="text-muted mt-2 d-block text-truncate">@Html.DisplayFor(model => Model.News.ImageUrl)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-5 mb-4">
+                                    <div class="info-item">
+                                        <label class="form-label fw-bold text-muted mb-3">
+                                            <i class="bi bi-image me-2"></i>
+                                            Featured Image
+                                        </label>
+                                        <div class="info-value">
+                                            <img src="~/assets/img/Local/default-news.jpg" alt="Default Image" 
+                                                 class="img-fluid rounded shadow-sm" style="width: 100%; max-height: 300px; object-fit: cover;" />
                                         </div>
                                     </div>
                                 </div>
                             }
 
                             <!-- Article Content -->
-                            <div class="@(string.IsNullOrEmpty(Model.News.ImageUrl) ? "col-12" : "col-md-7") mb-4">
+                            <div class="@(string.IsNullOrEmpty(Model.News.ImageUrl) ? "col-md-7" : "col-md-7") mb-4">
                                 <div class="info-item">
                                     <label class="form-label fw-bold text-muted mb-3">
                                         <i class="bi bi-file-text me-2"></i>

@@ -1,44 +1,56 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NewsWire.Data;
 using NewsWire.Models;
+using NewsWire.Services;
 
 namespace NewsWire.Controllers
 {
-    public class CategoriesController : Controller
+    public class CategoriesController : BaseController
     {
-        private readonly NewsDbContext _context;
+        private readonly ICategoryService _categoryService;
 
-        public CategoriesController(NewsDbContext context)
+        public CategoriesController(
+            ICategoryService categoryService,
+            ILogger<CategoriesController> logger) : base(logger)
         {
-            _context = context;
+            _categoryService = categoryService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-
-            return View(_context.Categories.ToList());
+            try
+            {
+                var categories = await _categoryService.GetAllCategoriesAsync();
+                return View(categories);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Index));
+            }
         }
 
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
-            {
-                return NotFound();
-            }
+                return HandleNullId(nameof(Details));
 
-            var category = _context.Categories
-                .FirstOrDefault(m => m.Id == id);
-            if (category == null)
+            try
             {
-                return NotFound();
-            }
+                var category = await _categoryService.GetCategoryByIdAsync(id.Value);
 
-            return View(category);
+                if (category == null)
+                    return HandleNotFound("Category", id.Value);
+
+                ViewBag.NewsCount = await _categoryService.GetNewsCountByCategoryAsync(id.Value);
+                return View(category);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Details));
+            }
         }
 
-        [Authorize("Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -46,108 +58,130 @@ namespace NewsWire.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize("Admin")]
-        public IActionResult Create([Bind("Id,Name,Description")] Category category)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create([Bind("Id,Name,Description")] Category category)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(category);
+
+            try
             {
-                _context.Add(category);
-                _context.SaveChanges();
-                return RedirectToAction(nameof(Index));
+                var success = await _categoryService.CreateCategoryAsync(category);
+
+                if (success)
+                {
+                    SetSuccessMessage($"Category '{category.Name}' created successfully!");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                SetErrorMessage("Category name already exists. Please choose a different name.");
+                return View(category);
             }
-            return View(category);
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Create));
+            }
         }
 
-        // GET: Categories/Edit/5
-        [Authorize("Admin")]
-        public IActionResult Edit(int? id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
-                return NotFound();
-            }
+                return HandleNullId(nameof(Edit));
 
-            var category = _context.Categories.Find(id);
-            if (category == null)
+            try
             {
-                return NotFound();
+                var category = await _categoryService.GetCategoryByIdAsync(id.Value);
+
+                if (category == null)
+                    return HandleNotFound("Category", id.Value);
+
+                return View(category);
             }
-            return View(category);
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Edit));
+            }
         }
 
-        // POST: Categories/Edit/5 To protect from overposting attacks, enable the specific
-        // properties you want to bind to. For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize("Admin")]
-        public IActionResult Edit(int id, [Bind("Id,Name,Description")] Category category)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description")] Category category)
         {
             if (id != category.Id)
-            {
                 return NotFound();
-            }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(category);
+
+            try
             {
-                try
+                var success = await _categoryService.UpdateCategoryAsync(category);
+
+                if (success)
                 {
-                    _context.Update(category);
-                    _context.SaveChanges();
+                    SetSuccessMessage($"Category '{category.Name}' updated successfully!");
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoryExists(category.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+
+                SetErrorMessage("Failed to update category. The category name may already exist.");
+                return View(category);
             }
-            return View(category);
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Edit));
+            }
         }
 
-        // GET: Categories/Delete/5
-        [Authorize("Admin")]
-        public IActionResult Delete(int? id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
-            {
-                return NotFound();
-            }
+                return HandleNullId(nameof(Delete));
 
-            var category = _context.Categories
-                .FirstOrDefault(m => m.Id == id);
-            if (category == null)
+            try
             {
-                return NotFound();
-            }
+                var category = await _categoryService.GetCategoryByIdAsync(id.Value);
 
-            return View(category);
+                if (category == null)
+                    return HandleNotFound("Category", id.Value);
+
+                ViewBag.NewsCount = await _categoryService.GetNewsCountByCategoryAsync(id.Value);
+                return View(category);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Delete));
+            }
         }
 
-        // POST: Categories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize("Admin")]
-        public IActionResult DeleteConfirmed(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = _context.Categories.Find(id);
-            if (category != null)
+            try
             {
-                _context.Categories.Remove(category);
+                var category = await _categoryService.GetCategoryByIdAsync(id);
+                if (category == null)
+                    return HandleNotFound("Category", id);
+
+                var success = await _categoryService.DeleteCategoryAsync(id);
+
+                if (success)
+                {
+                    SetSuccessMessage($"Category '{category.Name}' deleted successfully!");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                SetErrorMessage("Cannot delete category. It may contain news articles.");
+                return RedirectToAction(nameof(Delete), new { id });
             }
-
-            _context.SaveChanges();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool CategoryExists(int id)
-        {
-            return _context.Categories.Any(e => e.Id == id);
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(DeleteConfirmed));
+            }
         }
     }
 }

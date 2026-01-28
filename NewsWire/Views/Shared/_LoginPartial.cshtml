@@ -8,24 +8,24 @@
 {
     <nav id="navmenu" class="navmenu">
         <ul>
-            <li><a href="~/Home/Index" class="active">About</a></li>
+            <li><a href="@Url.Action("Index", "Home")" class="active">About</a></li>
             @if(!User.IsInRole("Admin"))
             {
-                
-            <li><a href="~/Profile/Index">
+
+            <li><a href="@Url.Action("Index", "Profile")">
                 <i class="bi bi-person-circle me-1"></i>My Profile
             </a></li>
             }
-            <li><a href="~/TeamMembers/Index">Team Member</a></li>
-            <li><a href="~/ContactUs/Index">Contact</a></li>
+            <li><a href="@Url.Action("Index", "TeamMembers")">Team Member</a></li>
+            <li><a href="@Url.Action("Index", "ContactUs")">Contact</a></li>
             @if (User.IsInRole("Admin"))
             {
-                <li><a href="~/Admin" style="color: #3fbbc0; font-weight: 600;">
+                <li><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })" style="color: #3fbbc0; font-weight: 600;">
                     <i class="bi bi-shield-check me-1"></i>Admin Panel
                 </a></li>
             }
             <li>
-                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Categories")">
                     <button type="submit" class="nav-link">
                         <i class="bi bi-box-arrow-left me-1"></i>Logout
                     </button>

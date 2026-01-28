@@ -5,283 +5,238 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NewsWire.Data;
 using NewsWire.Models;
+using NewsWire.Services;
 using System.Security.Claims;
 
 namespace NewsWire.Controllers
 {
-    public class NewsController : Controller
+    public class NewsController : BaseController
     {
         private readonly NewsDbContext _context;
-        private readonly UserManager<CustomUser> _userManager;
+        private readonly IFileUploadService _fileUploadService;
+        private readonly IFavoriteService _favoriteService;
+        private readonly INewsService _newsService;
 
-        public NewsController(NewsDbContext context, UserManager<CustomUser> userManager)
+        public NewsController(
+            NewsDbContext context,
+            IFileUploadService fileUploadService,
+            IFavoriteService favoriteService,
+            INewsService newsService,
+            ILogger<NewsController> logger) : base(logger)
         {
             _context = context;
-            _userManager = userManager;
+            _fileUploadService = fileUploadService;
+            _favoriteService = favoriteService;
+            _newsService = newsService;
         }
 
-        // GET: News
-        public IActionResult Index(int id, int page = 1)
+        public async Task<IActionResult> Index(int id, int page = 1)
         {
-            int pageSize = 6;
-            var source = _context.News
-                                 .Where(n => n.CategoryId == id)
-                                 .Include(n => n.Category);
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var fav = _context.UserFavorites.Where(f => f.UserId == userId)
-                                            .Select(f => f.NewsId)
-                                            .ToHashSet();
-
-            int totalItems = source.Count();
-            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = totalPages;
-            ViewBag.HasPreviousPage = page > 1;
-            ViewBag.HasNextPage = page < totalPages;
-            ViewBag.CategoryId = id;
-
-            var pagedNews = source.Skip((page - 1) * pageSize)
-                                  .Take(pageSize);
-
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var viewModelList = pagedNews.Select(newsItem => new NewsDisplayViewModel
+            try
             {
-                News = newsItem,
-                IsOwner = (currentUserId != null && newsItem.AuthorId == currentUserId),
-                IsFavorite = fav.Contains(newsItem.Id)
-            }).ToList();
+                const int pageSize = 6;
+                var userId = GetCurrentUserId();
 
-            return View(viewModelList);
+                var (totalItems, totalPages) = await _newsService.GetPaginationInfoAsync(id, pageSize);
+
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPages = totalPages;
+                ViewBag.HasPreviousPage = page > 1;
+                ViewBag.HasNextPage = page < totalPages;
+                ViewBag.CategoryId = id;
+
+                var viewModelList = await _newsService.GetNewsByCategoryAsync(id, page, pageSize, userId);
+
+                return View(viewModelList);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Index));
+            }
         }
 
-        // GET: News/Details/5
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
+                return HandleNullId(nameof(Details));
+
+            try
             {
-                return NotFound();
+                var userId = GetCurrentUserId();
+                var newsViewModel = await _newsService.GetNewsDetailsAsync(id.Value, userId);
+
+                if (newsViewModel == null)
+                    return HandleNotFound("News", id.Value);
+
+                return View(newsViewModel);
             }
-
-            var userID = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            var news = _context.News
-                .Include(n => n.Category)
-                .FirstOrDefault(m => m.Id == id);
-
-            if (news == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                return HandleException(ex, nameof(Details));
             }
-
-            return View(new NewsDisplayViewModel
-            {
-                News = news,
-                IsOwner = (news.AuthorId == userID),
-                IsFavorite = false
-            });
         }
 
-        // GET: News/Create
         [Authorize(Roles = "Admin,User")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            var categories = _context.Categories?.ToList() ?? new List<Category>();
-
-            ViewData["CategoryId"] = new SelectList(categories, "Id", "Name");
-            return View();
+            try
+            {
+                var categories = await _context.Categories.ToListAsync();
+                ViewData["CategoryId"] = new SelectList(categories, "Id", "Name");
+                return View();
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Create));
+            }
         }
 
-        // POST: News/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,User")]
-        public IActionResult Create([Bind("Id,Title,Content,ImageUrl,PublishedAt,Topic,CategoryId")] News news)
+        public async Task<IActionResult> Create([Bind("Id,Title,Content,ImageFile,Topic,CategoryId")] News news)
         {
             ModelState.Remove("AuthorId");
             ModelState.Remove("Author");
             ModelState.Remove("Category");
-            if (ModelState.IsValid)
+            ModelState.Remove("ImageUrl");
+
+            if (!ModelState.IsValid)
             {
-                news.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var categories = await _context.Categories.ToListAsync();
+                ViewData["CategoryId"] = new SelectList(categories, "Id", "Name", news.CategoryId);
+                return View(news);
+            }
+
+            try
+            {
+                news.AuthorId = GetCurrentUserId();
                 news.PublishedAt = DateTime.UtcNow;
 
-                _context.Add(news);
-                _context.SaveChanges();
+                // Handle image upload using FileUploadService
+                if (news.ImageFile != null && _fileUploadService.ValidateImageFile(news.ImageFile))
+                {
+                    var imagePath = await _fileUploadService.UploadImageAsync(news.ImageFile, "News");
+                    news.ImageUrl = imagePath ?? "/assets/img/Local/default-news.jpg";
+                }
+                else
+                {
+                    news.ImageUrl = "/assets/img/Local/default-news.jpg";
+                }
 
-                TempData["SuccessMessage"] = "Article created successfully!";
+                _context.Add(news);
+                await _context.SaveChangesAsync();
+
+                SetSuccessMessage("Article created successfully!");
                 return RedirectToAction("Index", "Profile");
             }
-
-            var categories = _context.Categories?.ToList() ?? new List<Category>();
-
-            ViewData["CategoryId"] = new SelectList(categories, "Id", "Name", news.CategoryId);
-
-            return View(news);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating news article");
+                SetErrorMessage("Failed to create article. Please try again.");
+                
+                var categories = await _context.Categories.ToListAsync();
+                ViewData["CategoryId"] = new SelectList(categories, "Id", "Name", news.CategoryId);
+                return View(news);
+            }
         }
 
-        // GET: News/Edit/5
         [Authorize(Roles = "Admin,User")]
-        public IActionResult Edit(int? id, string returnUrl = null)
+        public async Task<IActionResult> Edit(int? id, string returnUrl = null)
         {
             if (id == null)
-            {
-                return NotFound();
-            }
+                return HandleNullId(nameof(Edit));
 
-            var news = _context.News.Find(id);
-            if (news == null)
+            try
             {
-                return NotFound();
-            }
+                var news = await _context.News.FindAsync(id);
+                if (news == null)
+                    return HandleNotFound("News", id.Value);
 
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!User.IsInRole("Admin") && news.AuthorId != currentUserId)
+                var currentUserId = GetCurrentUserId();
+                if (!IsAdmin() && news.AuthorId != currentUserId)
+                    return HandleUnauthorized(nameof(Edit));
+
+                var categories = await _context.Categories.ToListAsync();
+                ViewData["CategoryId"] = new SelectList(categories, "Id", "Name", news.CategoryId);
+                ViewBag.ReturnUrl = returnUrl;
+                
+                return View(news);
+            }
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "You don't have permission to edit this article.";
-                return RedirectToAction(nameof(Index));
+                return HandleException(ex, nameof(Edit));
             }
-
-            // تم استخدام Name هنا
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", news.CategoryId);
-            ViewBag.ReturnUrl = returnUrl;
-            return View(news);
         }
 
-        // POST: News/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,User")]
-        public IActionResult Edit(int id, [Bind("Id,Title,Content,ImageUrl,PublishedAt,Topic,CategoryId")] News news, string returnUrl = null)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content,ImageFile,PublishedAt,Topic,CategoryId")] News news, string returnUrl = null)
         {
             if (id != news.Id)
-            {
                 return NotFound();
-            }
 
-            var existingNews = _context.News.Find(id);
-            if (existingNews == null)
+            try
             {
-                return NotFound();
-            }
+                var existingNews = await _context.News.FindAsync(id);
+                if (existingNews == null)
+                    return HandleNotFound("News", id);
 
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!User.IsInRole("Admin") && existingNews.AuthorId != currentUserId)
-            {
-                TempData["ErrorMessage"] = "You don't have permission to edit this article.";
-                return RedirectToAction(nameof(Index));
-            }
+                var currentUserId = GetCurrentUserId();
+                if (!IsAdmin() && existingNews.AuthorId != currentUserId)
+                    return HandleUnauthorized(nameof(Edit));
 
-            if (ModelState.IsValid)
-            {
-                try
+                ModelState.Remove("ImageUrl");
+                ModelState.Remove("Author");
+                ModelState.Remove("Category");
+
+                if (!ModelState.IsValid)
                 {
-                    news.AuthorId = existingNews.AuthorId;
-                    _context.Entry(existingNews).State = EntityState.Detached;
-                    _context.Update(news);
-                    _context.SaveChanges();
-
-                    TempData["SuccessMessage"] = "Article updated successfully!";
-
-                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                    {
-                        return Redirect(returnUrl);
-                    }
+                    var categories = await _context.Categories.ToListAsync();
+                    ViewData["CategoryId"] = new SelectList(categories, "Id", "Name", news.CategoryId);
+                    return View(news);
                 }
-                catch (DbUpdateConcurrencyException)
+
+                // Handle image upload
+                if (news.ImageFile != null && _fileUploadService.ValidateImageFile(news.ImageFile))
                 {
-                    if (!NewsExists(news.Id))
+                    // Delete old image if exists
+                    if (!string.IsNullOrEmpty(existingNews.ImageUrl) && !existingNews.ImageUrl.Contains("default"))
                     {
-                        return NotFound();
+                        await _fileUploadService.DeleteImageAsync(existingNews.ImageUrl);
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    // Upload new image
+                    var imagePath = await _fileUploadService.UploadImageAsync(news.ImageFile, "News");
+                    news.ImageUrl = imagePath ?? existingNews.ImageUrl;
                 }
-                return RedirectToAction(nameof(Index));
-            }
+                else
+                {
+                    news.ImageUrl = existingNews.ImageUrl;
+                }
 
-            // تم التعديل هنا لاستخدام Title بدلاً من Name
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Title", news.CategoryId);
+                news.AuthorId = existingNews.AuthorId;
+                _context.Entry(existingNews).State = EntityState.Detached;
+                _context.Update(news);
+                await _context.SaveChangesAsync();
 
-            ViewBag.ReturnUrl = returnUrl;
-            return View(news);
-        }
+                SetSuccessMessage("Article updated successfully!");
 
-        // GET: News/Delete/5
-        [Authorize(Roles = "Admin,User")]
-        public IActionResult Delete(int? id, string returnUrl = null)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var news = _context.News
-                .Include(n => n.Category)
-                .FirstOrDefault(m => m.Id == id);
-
-            if (news == null)
-            {
-                return NotFound();
-            }
-
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!User.IsInRole("Admin") && news.AuthorId != currentUserId)
-            {
-                TempData["ErrorMessage"] = "You don't have permission to delete this article.";
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                {
                     return Redirect(returnUrl);
-                }
-                return RedirectToAction(nameof(Index));
-            }
 
-            ViewBag.ReturnUrl = returnUrl;
-            return View(news);
-        }
-
-        // POST: News/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin,User")]
-        public IActionResult DeleteConfirmed(int id, string returnUrl = null)
-        {
-            var news = _context.News.Find(id);
-            if (news != null)
-            {
-                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (!User.IsInRole("Admin") && news.AuthorId != currentUserId)
-                {
-                    TempData["ErrorMessage"] = "You don't have permission to delete this article.";
-                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                    {
-                        return Redirect(returnUrl);
-                    }
-                    return RedirectToAction(nameof(Index));
-                }
-
-                _context.News.Remove(news);
-                _context.SaveChanges();
-
-                TempData["SuccessMessage"] = "Article deleted successfully!";
-            }
-
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
                 return RedirectToAction("Index", "Profile");
             }
-
-            return RedirectToAction("Index", "Profile");
-        }
-
-        private bool NewsExists(int id)
-        {
-            return _context.News.Any(e => e.Id == id);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating news article");
+                SetErrorMessage("Failed to update article. Please try again.");
+                
+                var categories = await _context.Categories.ToListAsync();
+                ViewData["CategoryId"] = new SelectList(categories, "Id", "Name", news.CategoryId);
+                return View(news);
+            }
         }
     }
 }

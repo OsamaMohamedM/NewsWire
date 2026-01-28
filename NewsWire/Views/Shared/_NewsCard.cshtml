@@ -1,0 +1,66 @@
+@model NewsWire.Models.NewsDisplayViewModel
+
+<div class="news-card">
+    @if (!string.IsNullOrEmpty(Model.News.ImageUrl))
+    {
+        <img src="@Model.News.ImageUrl" 
+             alt="@Model.News.Title" 
+             class="news-card-image"
+             onerror="this.onerror=null; this.src='/assets/img/Local/default-news.jpg';">
+    }
+    else
+    {
+        <img src="/assets/img/Local/default-news.jpg" 
+             alt="Default News Image" 
+             class="news-card-image">
+    }
+    
+    <div class="news-card-body">
+        <h6 class="news-card-title">@Model.News.Title</h6>
+        <p class="news-card-content">
+            @(Model.News.Content.Length > 100 ? 
+                Model.News.Content.Substring(0, 100) + "..." : 
+                Model.News.Content)
+        </p>
+        
+        <div class="news-card-meta">
+            <span class="news-date">
+                <i class="bi bi-calendar3 me-1"></i>
+                @Model.News.PublishedAt.ToString("MMM dd, yyyy")
+            </span>
+            <span class="category-badge">@Model.News.Category?.Name</span>
+        </div>
+        
+        <div class="news-actions">
+            <a href="@Url.Action("Details", "News", new { id = Model.News.Id })"
+               class="btn-action btn-primary">
+                <i class="bi bi-eye me-1"></i>View
+            </a>
+            
+            @if (Model.IsOwner)
+            {
+                <a href="@Url.Action("EditMyNews", "Profile", new { newsId = Model.News.Id })"
+                   class="btn-action btn-edit">
+                    <i class="bi bi-pencil me-1"></i>Edit
+                </a>
+                <form asp-controller="Profile" asp-action="DeleteMyNews" method="post" class="d-inline">
+                    <input type="hidden" name="newsId" value="@Model.News.Id">
+                    <button type="submit" class="btn-action btn-delete"
+                            onclick="return confirm('Are you sure you want to delete this article?')">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                </form>
+            }
+            
+            @if (Model.IsFavorite && !Model.IsOwner)
+            {
+                <form asp-controller="Profile" asp-action="ToggleFavorite" method="post" class="d-inline">
+                    <input type="hidden" name="newsId" value="@Model.News.Id">
+                    <button type="submit" class="btn-action btn-favorite active">
+                        <i class="bi bi-heart-fill me-1"></i>Remove
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+</div>

@@ -1,124 +1,119 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NewsWire.Data;
 using NewsWire.Models;
+using NewsWire.Services;
 
 namespace NewsWire.Controllers
 {
-    public class ContactUsController : Controller
+    public class ContactUsController : BaseController
     {
-        private readonly NewsDbContext _context;
+        private readonly IContactService _contactService;
 
-        public ContactUsController(NewsDbContext context)
+        public ContactUsController(
+            IContactService contactService,
+            ILogger<ContactUsController> logger) : base(logger)
         {
-            _context = context;
+            _contactService = contactService;
         }
 
-        // GET: ContactUs
         public IActionResult Index()
         {
             return View();
         }
 
-        // GET: ContactUs/Details/5
-        [Authorize]
-        public IActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var contactUs = _context.ContactUs
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (contactUs == null)
-            {
-                return NotFound();
-            }
-
-            return View(contactUs);
-        }
-
-        // GET: ContactUs/Create
-        [Authorize]
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: ContactUs/Create To protect from overposting attacks, enable the specific
-        // properties you want to bind to. For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
-        public IActionResult Create([Bind("Id,Name,Email,Subject,Message")] ContactUs contactUs)
+        public async Task<IActionResult> Index([Bind("Id,Name,Email,Subject,Message")] ContactUs contactUs)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(contactUs);
+
+            try
             {
-                _context.Add(contactUs);
-                _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var success = await _contactService.CreateMessageAsync(contactUs);
+
+                if (success)
+                {
+                    SetSuccessMessage("Thank you for contacting us! We'll get back to you soon.");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                SetErrorMessage("Failed to send message. Please check your email and try again.");
+                return View(contactUs);
             }
-            return View(contactUs);
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Index));
+            }
         }
 
-        // GET: ContactUs/Edit/5
-        [Authorize]
-        public IActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var contactUs = _context.ContactUs.Find(id);
-            if (contactUs == null)
-            {
-                return NotFound();
-            }
-            return View(contactUs);
-        }
-
-        // GET: ContactUs/Delete/5
-        [Authorize("Admin")]
-        public IActionResult Delete(int? id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
-            {
-                return NotFound();
-            }
+                return HandleNullId(nameof(Details));
 
-            var contactUs = _context.ContactUs
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (contactUs == null)
+            try
             {
-                return NotFound();
-            }
+                var message = await _contactService.GetMessageByIdAsync(id.Value);
 
-            return View(contactUs);
+                if (message == null)
+                    return HandleNotFound("Contact Message", id.Value);
+
+                await _contactService.MarkAsReadAsync(id.Value);
+                return View(message);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Details));
+            }
         }
 
-        // POST: ContactUs/Delete/5
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+                return HandleNullId(nameof(Delete));
+
+            try
+            {
+                var message = await _contactService.GetMessageByIdAsync(id.Value);
+
+                if (message == null)
+                    return HandleNotFound("Contact Message", id.Value);
+
+                return View(message);
+            }
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(Delete));
+            }
+        }
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize("Admin")]
-        public IActionResult DeleteConfirmed(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var contactUs = _context.ContactUs.Find(id);
-            if (contactUs != null)
+            try
             {
-                _context.ContactUs.Remove(contactUs);
+                var success = await _contactService.DeleteMessageAsync(id);
+
+                if (success)
+                {
+                    SetSuccessMessage("Contact message deleted successfully!");
+                }
+                else
+                {
+                    SetErrorMessage("Failed to delete message.");
+                }
+
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
             }
-
-            _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        [Authorize]
-        public bool ContactUsExists(int id)
-        {
-            return _context.ContactUs.Any(e => e.Id == id);
+            catch (Exception ex)
+            {
+                return HandleException(ex, nameof(DeleteConfirmed));
+            }
         }
     }
 }

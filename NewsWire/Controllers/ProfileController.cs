@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace NewsWire.Controllers
 {
     [Authorize]
-    public class ProfileController : Controller
+    public class ProfileController : BaseController
     {
         private readonly UserManager<CustomUser> _userManager;
         private readonly SignInManager<CustomUser> _signInManager;
@@ -22,7 +22,8 @@ namespace NewsWire.Controllers
             SignInManager<CustomUser> signInManager,
             IProfileService profileService,
             IFavoriteService favoriteService,
-            INewsManagementService newsManagementService)
+            INewsManagementService newsManagementService,
+            ILogger<ProfileController> logger) : base(logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -34,11 +35,13 @@ namespace NewsWire.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string tab = "profile")
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId)) return NotFound();
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId)) 
+                return HandleNotFound("User", 0);
 
             var profile = await _profileService.GetProfileAsync(userId);
-            if (profile == null) return NotFound();
+            if (profile == null) 
+                return HandleNotFound("Profile", 0);
 
             var statistics = await _profileService.GetProfileStatisticsAsync(userId);
             var userNews = await _profileService.GetUserNewsAsync(userId, 1, 6);
@@ -62,20 +65,52 @@ namespace NewsWire.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return await Index("profile");
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var profileData = await _profileService.GetProfileAsync(userId);
+                var statistics = await _profileService.GetProfileStatisticsAsync(userId);
+                var userNews = await _profileService.GetUserNewsAsync(userId, 1, 6);
+                var favoriteNews = await _profileService.GetUserFavoritesAsync(userId, 1, 6);
+
+                var viewModel = new UserProfileDashboardViewModel
+                {
+                    Profile = model,
+                    Statistics = statistics,
+                    UserNews = userNews,
+                    FavoriteNews = favoriteNews,
+                    ActiveTab = "profile"
+                };
+
+                return View("Index", viewModel);
             }
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var success = await _profileService.UpdateProfileAsync(userId, model);
+            var currentUserId = GetCurrentUserId();
+            var currentUser = await _userManager.FindByIdAsync(currentUserId);
+            
+            // Check if email has changed
+            bool emailChanged = !currentUser.Email.Equals(model.Email, StringComparison.OrdinalIgnoreCase);
+            
+            // Update profile (name and photo)
+            var success = await _profileService.UpdateProfileAsync(currentUserId, model);
 
             if (success)
             {
-                await _signInManager.RefreshSignInAsync(await _userManager.FindByIdAsync(userId));
-                TempData["SuccessMessage"] = "Profile updated successfully!";
+                // Update email if it changed
+                if (emailChanged)
+                {
+                    var emailUpdateSuccess = await _profileService.UpdateEmailAsync(currentUserId, model.Email);
+                    if (!emailUpdateSuccess)
+                    {
+                        SetErrorMessage("Profile updated but failed to update email. Email may already be in use.");
+                        return RedirectToAction(nameof(Index), new { tab = "profile" });
+                    }
+                }
+
+                await _signInManager.RefreshSignInAsync(await _userManager.FindByIdAsync(currentUserId));
+                SetSuccessMessage("Profile updated successfully!");
             }
             else
             {
-                TempData["ErrorMessage"] = "Failed to update profile. Please try again.";
+                SetErrorMessage("Failed to update profile. Please try again.");
             }
 
             return RedirectToAction(nameof(Index), new { tab = "profile" });
@@ -84,7 +119,7 @@ namespace NewsWire.Controllers
         [HttpGet]
         public async Task<IActionResult> MyNews(int page = 1)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetCurrentUserId();
             var userNews = await _profileService.GetUserNewsAsync(userId, page, 6);
 
             ViewBag.CurrentPage = page;
@@ -96,7 +131,7 @@ namespace NewsWire.Controllers
         [HttpGet]
         public async Task<IActionResult> MyFavorites(int page = 1)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetCurrentUserId();
             var favoriteNews = await _profileService.GetUserFavoritesAsync(userId, page, 9);
 
             ViewBag.CurrentPage = page;
@@ -109,11 +144,11 @@ namespace NewsWire.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleFavorite(int newsId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetCurrentUserId();
 
             if (userId == null)
             {
-                TempData["Error"] = "login First";
+                SetErrorMessage("Please login first.");
                 return Redirect(Request.Headers["Referer"].ToString());
             }
 
@@ -123,17 +158,17 @@ namespace NewsWire.Controllers
             if (isFavorite)
             {
                 success = await _favoriteService.RemoveFromFavoritesAsync(userId, newsId);
-                TempData["SuccessMessage"] = "Article removed from favorites!";
+                SetSuccessMessage("Article removed from favorites!");
             }
             else
             {
                 success = await _favoriteService.AddToFavoritesAsync(userId, newsId);
-                TempData["SuccessMessage"] = "Article added to favorites!";
+                SetSuccessMessage("Article added to favorites!");
             }
 
             if (!success)
             {
-                TempData["ErrorMessage"] = "Failed to update favorites. Please try again.";
+                SetErrorMessage("Failed to update favorites. Please try again.");
             }
 
             return Redirect(Request.Headers["Referer"].ToString());
@@ -143,12 +178,12 @@ namespace NewsWire.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteMyNews(int newsId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetCurrentUserId();
             var canDelete = await _newsManagementService.CanUserDeleteNewsAsync(userId, newsId);
 
             if (!canDelete)
             {
-                TempData["ErrorMessage"] = "You don't have permission to delete this article.";
+                SetErrorMessage("You don't have permission to delete this article.");
                 return RedirectToAction(nameof(Index), new { tab = "articles" });
             }
 
@@ -158,12 +193,12 @@ namespace NewsWire.Controllers
         [HttpGet]
         public async Task<IActionResult> EditMyNews(int newsId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetCurrentUserId();
             var canEdit = await _newsManagementService.CanUserEditNewsAsync(userId, newsId);
 
             if (!canEdit)
             {
-                TempData["ErrorMessage"] = "You don't have permission to edit this article.";
+                SetErrorMessage("You don't have permission to edit this article.");
                 return RedirectToAction(nameof(Index), new { tab = "articles" });
             }
 
@@ -173,7 +208,7 @@ namespace NewsWire.Controllers
         [HttpGet]
         public async Task<IActionResult> Statistics()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetCurrentUserId();
             var statistics = await _profileService.GetProfileStatisticsAsync(userId);
 
             return Json(statistics);
