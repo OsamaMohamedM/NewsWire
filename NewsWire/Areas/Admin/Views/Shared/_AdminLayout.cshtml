@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - NewsWire Admin</title>
+
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="~/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="~/assets/css/admin.css" rel="stylesheet">
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand">
+            <h3>NewsWire</h3>
+            <div class="brand-subtitle">Admin Panel</div>
+        </div>
+        <nav class="admin-nav">
+            <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })" class="admin-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="@Url.Action("Index", "News", new { area = "Admin" })" class="admin-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "News" ? "active" : "")">
+                <i class="bi bi-newspaper"></i>
+                <span>News Management</span>
+            </a>
+            <a href="@Url.Action("Index", "Categories", new { area = "Admin" })" class="admin-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Categories" ? "active" : "")">
+                <i class="bi bi-tags"></i>
+                <span>Categories</span>
+            </a>
+            <a href="@Url.Action("Index", "TeamMembers", new { area = "Admin" })" class="admin-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "TeamMembers" ? "active" : "")">
+                <i class="bi bi-people"></i>
+                <span>Team Members</span>
+            </a>
+            <a href="@Url.Action("Index", "ContactMessages", new { area = "Admin" })" class="admin-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "ContactMessages" ? "active" : "")">
+                <i class="bi bi-envelope"></i>
+                <span>Contact Messages</span>
+            </a>
+            <a href="@Url.Action("Index", "Users", new { area = "Admin" })" class="admin-nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")">
+                <i class="bi bi-person-circle"></i>
+                <span>Users & Roles</span>
+            </a>
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+            <a href="@Url.Action("Index", "Categories", new { area = "" })" class="admin-nav-item">
+                <i class="bi bi-house-door"></i>
+                <span>Back to Website</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Topbar -->
+    <header class="admin-topbar">
+        <h4>@ViewData["PageTitle"]</h4>
+        <div class="admin-topbar-right">
+            <div class="admin-user-info">
+                <div class="admin-user-avatar">
+                    @(User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "A")
+                </div>
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">@User.Identity?.Name</div>
+                    <div style="font-size: 12px; color: #6c757d;">Administrator</div>
+                </div>
+            </div>
+            <form method="post" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Dashboard", new { area = "Admin" })">
+                <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 5px;">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="admin-alert admin-alert-success">
+                <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="admin-alert admin-alert-danger">
+                <i class="bi bi-exclamation-triangle"></i> @TempData["ErrorMessage"]
+            </div>
+        }
+        
+        @RenderBody()
+    </main>
+
+    <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,4 +1,4 @@
-﻿@model NewsWire.Models.News
+﻿@model NewsWire.Models.NewsDisplayViewModel
 
 @{
     ViewData["Title"] = "News Article Details";
@@ -20,16 +20,13 @@
                             <div class="flex-grow-1">
                                 <h4 class="card-title mb-2">
                                     <i class="bi bi-newspaper me-2"></i>
-                                    @Html.DisplayFor(model => model.Title)
+                                    @Html.DisplayFor(model => Model.News.Title)
                                 </h4>
-                                <div class="d-flex flex-wrap gap-2 mb-2">
-                                    <span class="info-badge">News Article</span>
-                                    <span class="badge bg-secondary">@Html.DisplayFor(model => model.Category.Name)</span>
-                                </div>
+                               <span class="badge bg-info text-dark rounded-pill px-3 py-1">
+    Science
+</span>
                             </div>
-                            <div class="text-muted">
-                                <small>ID: @Html.DisplayFor(model => model.Id)</small>
-                            </div>
+                            
                         </div>
                     </div>
                     
@@ -43,19 +40,19 @@
                                             <strong class="text-muted">
                                                 <i class="bi bi-calendar-event me-2"></i>Published:
                                             </strong>
-                                            <p class="mb-0">@Html.DisplayFor(model => model.PublishedAt)</p>
+                                            <p class="mb-0">@Html.DisplayFor(model => Model.News.PublishedAt)</p>
                                         </div>
                                         <div class="col-md-4">
                                             <strong class="text-muted">
                                                 <i class="bi bi-tags me-2"></i>Topic:
                                             </strong>
-                                            <p class="mb-0">@Html.DisplayFor(model => model.Topic)</p>
+                                            <p class="mb-0">@Html.DisplayFor(model => Model.News.Topic)</p>
                                         </div>
                                         <div class="col-md-4">
                                             <strong class="text-muted">
                                                 <i class="bi bi-folder me-2"></i>Category:
                                             </strong>
-                                            <p class="mb-0">@Html.DisplayFor(model => model.Category.Name)</p>
+                                            <p class="mb-0">@Html.DisplayFor(model => Model.News.Category.Name)</p>
                                         </div>
                                     </div>
                                 </div>
@@ -64,7 +61,7 @@
 
                         <div class="row">
                             <!-- Article Image -->
-                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            @if (!string.IsNullOrEmpty(Model.News.ImageUrl))
                             {
                                 <div class="col-md-5 mb-4">
                                     <div class="info-item">
@@ -73,24 +70,24 @@
                                             Featured Image
                                         </label>
                                         <div class="info-value">
-                                            <img src="@Model.ImageUrl" alt="@Model.Title" 
+                                            <img src="@Model.News.ImageUrl" alt="@Model.News.Title" 
                                                  class="img-fluid rounded shadow-sm" style="width: 100%; max-height: 300px; object-fit: cover;" />
-                                            <small class="text-muted mt-2 d-block text-truncate">@Html.DisplayFor(model => model.ImageUrl)</small>
+                                            <small class="text-muted mt-2 d-block text-truncate">@Html.DisplayFor(model => Model.News.ImageUrl)</small>
                                         </div>
                                     </div>
                                 </div>
                             }
 
                             <!-- Article Content -->
-                            <div class="@(string.IsNullOrEmpty(Model.ImageUrl) ? "col-12" : "col-md-7") mb-4">
+                            <div class="@(string.IsNullOrEmpty(Model.News.ImageUrl) ? "col-12" : "col-md-7") mb-4">
                                 <div class="info-item">
                                     <label class="form-label fw-bold text-muted mb-3">
                                         <i class="bi bi-file-text me-2"></i>
-                                        @Html.DisplayNameFor(model => model.Content)
+                                        @Html.DisplayNameFor(model => Model.News.Content)
                                     </label>
                                     <div class="info-value p-4 bg-light rounded border-start border-4">
                                         <div class="text-dark" style="line-height: 1.8; text-align: justify;">
-                                            @Html.Raw(Html.DisplayFor(model => model.Content).ToString().Replace("\n", "<br />"))
+                                            @Html.Raw(Html.DisplayFor(model => Model.News.Content).ToString().Replace("\n", "<br />"))
                                         </div>
                                     </div>
                                 </div>
@@ -102,18 +99,20 @@
                             <div class="col-12">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                                     <!-- Back Button -->
-                                    <a asp-action="Index" class="btn btn-secondary px-4 py-2">
+                                    <a href="javascript:void(0);" onclick="history.back();" class="btn btn-secondary px-4 py-2">
                                         <i class="bi bi-arrow-left me-2"></i>
-                                        Back to Articles
+                                        Back
                                     </a>
 
-                                    <!-- Action Buttons -->
+                                    @if(Model.IsOwner)
+                                    {     
                                     <div class="d-flex gap-2">
-                                        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary px-4 py-2">
+                                        <a asp-action="Edit" asp-route-id="@Model.News.Id" class="btn btn-primary px-4 py-2">
                                             <i class="bi bi-pencil-square me-2"></i>
                                             Edit Article
                                         </a>
                                     </div>
+                                    }
                                 </div>
                             </div>
                         </div>

@@ -11,7 +11,7 @@ builder.Services.AddDbContext<NewsDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Identity Service Setup
-builder.Services.AddIdentity<User, IdentityRole>(
+builder.Services.AddIdentity<CustomUser, IdentityRole>(
      option =>
      {
          option.Password.RequireDigit = false;
@@ -24,6 +24,7 @@ builder.Services.AddIdentity<User, IdentityRole>(
          option.SignIn.RequireConfirmedPhoneNumber = false;
      })
     .AddEntityFrameworkStores<NewsDbContext>()
+    .AddRoles<IdentityRole>()
     .AddDefaultUI()
     .AddDefaultTokenProviders();
 builder.Services.AddScoped<IProfileService, ProfileService>();
@@ -35,6 +36,12 @@ builder.Services.AddControllersWithViews()
 
 var app = builder.Build();
 
+// Seed roles and admin user
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedData.InitializeAsync(services);
+}
 
 if (!app.Environment.IsDevelopment())
 {
@@ -50,6 +57,11 @@ app.UseRouting();
 app.MapRazorPages();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Admin area route
+app.MapControllerRoute(
+    name: "admin",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

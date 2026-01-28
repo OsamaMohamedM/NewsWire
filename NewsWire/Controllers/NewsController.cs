@@ -12,38 +12,49 @@ namespace NewsWire.Controllers
     public class NewsController : Controller
     {
         private readonly NewsDbContext _context;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<CustomUser> _userManager;
 
-        public NewsController(NewsDbContext context, UserManager<User> userManager)
+        public NewsController(NewsDbContext context, UserManager<CustomUser> userManager)
         {
             _context = context;
             _userManager = userManager;
         }
 
         // GET: News
-
         public IActionResult Index(int id, int page = 1)
         {
             int pageSize = 6;
             var source = _context.News
                                  .Where(n => n.CategoryId == id)
                                  .Include(n => n.Category);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var fav = _context.UserFavorites.Where(f => f.UserId == userId)
+                                            .Select(f => f.NewsId)
+                                            .ToHashSet();
+
             int totalItems = source.Count();
             int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.HasPreviousPage = page > 1;
             ViewBag.HasNextPage = page < totalPages;
             ViewBag.CategoryId = id;
+
             var pagedNews = source.Skip((page - 1) * pageSize)
                                   .Take(pageSize);
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var viewModelList = pagedNews.Select(newsItem => new NewsDisplayViewModel
             {
                 News = newsItem,
-                IsOwner = (currentUserId != null && newsItem.AuthorId == currentUserId)
+                IsOwner = (currentUserId != null && newsItem.AuthorId == currentUserId),
+                IsFavorite = fav.Contains(newsItem.Id)
             }).ToList();
+
             return View(viewModelList);
         }
 
@@ -55,22 +66,32 @@ namespace NewsWire.Controllers
                 return NotFound();
             }
 
+            var userID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var news = _context.News
                 .Include(n => n.Category)
                 .FirstOrDefault(m => m.Id == id);
+
             if (news == null)
             {
                 return NotFound();
             }
 
-            return View(news);
+            return View(new NewsDisplayViewModel
+            {
+                News = news,
+                IsOwner = (news.AuthorId == userID),
+                IsFavorite = false
+            });
         }
 
         // GET: News/Create
         [Authorize(Roles = "Admin,User")]
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Description");
+            var categories = _context.Categories?.ToList() ?? new List<Category>();
+
+            ViewData["CategoryId"] = new SelectList(categories, "Id", "Name");
             return View();
         }
 
@@ -80,6 +101,9 @@ namespace NewsWire.Controllers
         [Authorize(Roles = "Admin,User")]
         public IActionResult Create([Bind("Id,Title,Content,ImageUrl,PublishedAt,Topic,CategoryId")] News news)
         {
+            ModelState.Remove("AuthorId");
+            ModelState.Remove("Author");
+            ModelState.Remove("Category");
             if (ModelState.IsValid)
             {
                 news.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -89,9 +113,13 @@ namespace NewsWire.Controllers
                 _context.SaveChanges();
 
                 TempData["SuccessMessage"] = "Article created successfully!";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Profile");
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Description", news.CategoryId);
+
+            var categories = _context.Categories?.ToList() ?? new List<Category>();
+
+            ViewData["CategoryId"] = new SelectList(categories, "Id", "Name", news.CategoryId);
+
             return View(news);
         }
 
@@ -117,7 +145,8 @@ namespace NewsWire.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Description", news.CategoryId);
+            // تم استخدام Name هنا
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", news.CategoryId);
             ViewBag.ReturnUrl = returnUrl;
             return View(news);
         }
@@ -133,7 +162,6 @@ namespace NewsWire.Controllers
                 return NotFound();
             }
 
-            // Check ownership before update
             var existingNews = _context.News.Find(id);
             if (existingNews == null)
             {
@@ -151,7 +179,6 @@ namespace NewsWire.Controllers
             {
                 try
                 {
-                    // Preserve the original author
                     news.AuthorId = existingNews.AuthorId;
                     _context.Entry(existingNews).State = EntityState.Detached;
                     _context.Update(news);
@@ -159,7 +186,6 @@ namespace NewsWire.Controllers
 
                     TempData["SuccessMessage"] = "Article updated successfully!";
 
-                    // Return to specified URL or default action
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     {
                         return Redirect(returnUrl);
@@ -178,7 +204,10 @@ namespace NewsWire.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Description", news.CategoryId);
+
+            // تم التعديل هنا لاستخدام Title بدلاً من Name
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Title", news.CategoryId);
+
             ViewBag.ReturnUrl = returnUrl;
             return View(news);
         }
@@ -195,12 +224,12 @@ namespace NewsWire.Controllers
             var news = _context.News
                 .Include(n => n.Category)
                 .FirstOrDefault(m => m.Id == id);
+
             if (news == null)
             {
                 return NotFound();
             }
 
-            // Check if user can delete this news (owner or admin)
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!User.IsInRole("Admin") && news.AuthorId != currentUserId)
             {
@@ -225,7 +254,6 @@ namespace NewsWire.Controllers
             var news = _context.News.Find(id);
             if (news != null)
             {
-                // Check ownership before deletion
                 var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (!User.IsInRole("Admin") && news.AuthorId != currentUserId)
                 {
@@ -243,13 +271,12 @@ namespace NewsWire.Controllers
                 TempData["SuccessMessage"] = "Article deleted successfully!";
             }
 
-            // Return to specified URL or default action
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
-                return Redirect(returnUrl);
+                return RedirectToAction("Index", "Profile");
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Profile");
         }
 
         private bool NewsExists(int id)

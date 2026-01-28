@@ -2,40 +2,33 @@
 // file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
 using NewsWire.Models;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
+using System.Text.Encodings.Web;
 
 namespace NewsWire.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<User> _signInManager;
-        private readonly UserManager<User> _userManager;
-        private readonly IUserStore<User> _userStore;
-        private readonly IUserEmailStore<User> _emailStore;
+        private readonly SignInManager<CustomUser> _signInManager;
+        private readonly UserManager<CustomUser> _userManager;
+        private readonly IUserStore<CustomUser> _userStore;
+        private readonly IUserEmailStore<CustomUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
-            UserManager<User> userManager,
-            IUserStore<User> userStore,
-            SignInManager<User> signInManager,
+            UserManager<CustomUser> userManager,
+            IUserStore<CustomUser> userStore,
+            SignInManager<CustomUser> signInManager,
             ILogger<RegisterModel> logger,
             RoleManager<IdentityRole> roleManager,
             IEmailSender emailSender)
@@ -160,11 +153,11 @@ namespace NewsWire.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private User CreateUser()
+        private CustomUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<User>();
+                return Activator.CreateInstance<CustomUser>();
             }
             catch
             {
@@ -174,13 +167,13 @@ namespace NewsWire.Areas.Identity.Pages.Account
             }
         }
 
-        private IUserEmailStore<User> GetEmailStore()
+        private IUserEmailStore<CustomUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<User>)_userStore;
+            return (IUserEmailStore<CustomUser>)_userStore;
         }
     }
 }

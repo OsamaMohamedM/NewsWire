@@ -17,6 +17,7 @@ namespace NewsWire.Controllers
 
         public IActionResult Index()
         {
+
             return View(_context.Categories.ToList());
         }
 

@@ -4,7 +4,7 @@ using NewsWire.Models;
 
 namespace NewsWire.Data
 {
-    public class NewsDbContext : IdentityDbContext<User>
+    public class NewsDbContext : IdentityDbContext<CustomUser>
     {
         public NewsDbContext(DbContextOptions<NewsDbContext> options) : base(options)
         {
@@ -30,7 +30,7 @@ namespace NewsWire.Data
                 .HasIndex(uf => new { uf.UserId, uf.NewsId })
                 .IsUnique();
 
-            // Configure News-User relationship
+            // Configure News-CustomUser relationship
             modelBuilder.Entity<News>()
                 .HasOne(n => n.Author)
                 .WithMany(u => u.news)

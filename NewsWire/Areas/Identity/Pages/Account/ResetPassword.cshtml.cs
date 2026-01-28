@@ -14,9 +14,9 @@ namespace NewsWire.Areas.Identity.Pages.Account
 {
     public class ResetPasswordModel : PageModel
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<CustomUser> _userManager;
 
-        public ResetPasswordModel(UserManager<User> userManager)
+        public ResetPasswordModel(UserManager<CustomUser> userManager)
         {
             _userManager = userManager;
         }

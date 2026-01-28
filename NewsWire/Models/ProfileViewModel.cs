@@ -25,7 +25,6 @@ namespace NewsWire.Models
         [NotMapped]
         public IFormFile? ProfileImage { get; set; }
 
-        // Statistics
         public int TotalNewsCount { get; set; }
         public int TotalFavoriteCount { get; set; }
         public DateTime JoinDate { get; set; }

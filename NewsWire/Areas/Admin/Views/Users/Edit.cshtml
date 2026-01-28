@@ -1,0 +1,80 @@
+@model EditUserViewModel
+@{
+    ViewData["Title"] = "Edit User";
+    ViewData["PageTitle"] = "Edit User";
+}
+
+<div class="admin-page-header">
+    <h2><i class="bi bi-pencil"></i> Edit User</h2>
+    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+</div>
+
+<div class="admin-card">
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="admin-form-group">
+                    <label asp-for="Email" class="control-label"></label>
+                    <input asp-for="Email" class="form-control admin-form-control" readonly />
+                    <small class="text-muted">Email cannot be changed</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="admin-form-group">
+                    <label asp-for="PhoneNumber" class="control-label">Phone Number</label>
+                    <input asp-for="PhoneNumber" class="form-control admin-form-control" placeholder="Enter phone number" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="admin-form-group">
+                    <label asp-for="FirstName" class="control-label">First Name</label>
+                    <input asp-for="FirstName" class="form-control admin-form-control" placeholder="Enter first name" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="admin-form-group">
+                    <label asp-for="LastName" class="control-label">Last Name</label>
+                    <input asp-for="LastName" class="form-control admin-form-control" placeholder="Enter last name" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-form-group">
+            <label class="control-label">Assign Roles</label>
+            <div class="p-3" style="background: #f8f9fa; border-radius: 8px;">
+                @foreach (var role in Model.AllRoles)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="SelectedRoles" value="@role" 
+                               @(Model.UserRoles.Contains(role) ? "checked" : "") id="role_@role">
+                        <label class="form-check-label" for="role_@role">
+                            @role
+                        </label>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="admin-form-group">
+            <button type="submit" class="btn btn-admin-primary">
+                <i class="bi bi-save"></i> Update User
+            </button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

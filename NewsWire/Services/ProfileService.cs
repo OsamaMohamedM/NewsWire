@@ -2,17 +2,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NewsWire.Data;
 using NewsWire.Models;
-using System.Security.Claims;
 
 namespace NewsWire.Services
 {
     public class ProfileService : IProfileService
     {
         private readonly NewsDbContext _context;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<CustomUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProfileService(NewsDbContext context, UserManager<User> userManager, IWebHostEnvironment webHostEnvironment)
+        public ProfileService(NewsDbContext context, UserManager<CustomUser> userManager, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _userManager = userManager;
@@ -101,7 +100,7 @@ namespace NewsWire.Services
             {
                 TotalArticles = userNews.Count,
                 PublishedThisMonth = userNews.Count(n => n.PublishedAt >= startOfMonth),
-                TotalViews = 0, // Implement if you have view tracking
+                TotalViews = 0,
                 TotalFavorites = favorites,
                 CategoryBreakdown = categoryStats,
                 ActivityChart = monthlyStats
@@ -122,7 +121,7 @@ namespace NewsWire.Services
             {
                 News = news,
                 IsOwner = true,
-                IsFavorite = false // Will be set by controller if needed
+                IsFavorite = false
             }).ToList();
         }
 

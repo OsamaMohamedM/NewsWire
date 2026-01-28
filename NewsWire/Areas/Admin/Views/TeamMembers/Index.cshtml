@@ -1,0 +1,54 @@
+@model IEnumerable<NewsWire.Models.TeamMember>
+@{
+    ViewData["Title"] = "Team Members";
+    ViewData["PageTitle"] = "Team Members Management";
+}
+
+<div class="admin-page-header">
+    <h2><i class="bi bi-people"></i> Team Members</h2>
+    <a href="@Url.Action("Create")" class="btn btn-admin-primary">
+        <i class="bi bi-plus-circle"></i> Add Team Member
+    </a>
+</div>
+
+<div class="row">
+    @if (Model.Any())
+    {
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 col-lg-3 mb-4">
+                <div class="admin-card text-center">
+                    <img src="@item.ImageUrl" alt="@item.Name" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #3fbbc0;">
+                    <h5 style="margin-bottom: 5px;">@item.Name</h5>
+                    <p style="color: #6c757d; margin-bottom: 20px;">@item.JobTitle</p>
+                    <div class="action-buttons justify-content-center">
+                        <a href="@Url.Action("Details", new { id = item.Id })" class="action-btn action-btn-view">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="@Url.Action("Edit", new { id = item.Id })" class="action-btn action-btn-edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="@Url.Action("Delete", new { id = item.Id })" class="action-btn action-btn-delete">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="admin-card">
+                <div class="admin-empty-state">
+                    <i class="bi bi-people"></i>
+                    <h4>No Team Members Found</h4>
+                    <p>Start by adding your first team member.</p>
+                    <a href="@Url.Action("Create")" class="btn btn-admin-primary">
+                        <i class="bi bi-plus-circle"></i> Add Team Member
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

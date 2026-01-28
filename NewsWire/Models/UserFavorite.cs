@@ -8,7 +8,7 @@ namespace NewsWire.Models
         
         [Required]
         public string UserId { get; set; }
-        public User User { get; set; }
+        public CustomUser User { get; set; }
         
         [Required]
         public int NewsId { get; set; }

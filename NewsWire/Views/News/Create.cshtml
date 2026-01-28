@@ -1,7 +1,7 @@
 ﻿@model NewsWire.Models.News
 
 @{
-    ViewData["Title"] = "Create News Article";
+
 }
 
 @section Styles {
@@ -11,7 +11,7 @@
 <!-- Main Content Section -->
 <section class="section py-5">
     <div class="container" data-aos="fade-up">
-        
+
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 <div class="card form-card">
@@ -22,11 +22,11 @@
                         </h4>
                         <p class="text-muted mb-0 mt-2">Fill in the details to create a new news article</p>
                     </div>
-                    
+
                     <div class="card-body p-5">
                         <form asp-action="Create">
                             <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-                            
+
                             <div class="row">
                                 <!-- Article Title -->
                                 <div class="col-md-8 mb-4">
@@ -34,30 +34,28 @@
                                         <i class="bi bi-card-heading me-2"></i>
                                         @Html.DisplayNameFor(model => model.Title)
                                     </label>
-                                    <input asp-for="Title" class="form-control form-control-lg" 
+                                    <input asp-for="Title" class="form-control form-control-lg"
                                            placeholder="Enter article title..." />
                                     <span asp-validation-for="Title" class="text-danger small"></span>
                                 </div>
 
                                 <!-- Category Selection -->
                                 <div class="col-md-4 mb-4">
-                                    <label asp-for="CategoryId" class="form-label fw-bold" style="color: #555;">
-                                        <i class="bi bi-folder me-2"></i>
-                                        @Html.DisplayNameFor(model => model.CategoryId)
-                                    </label>
-                                    <select asp-for="CategoryId" class="form-select form-select-lg" asp-items="ViewBag.CategoryId">
+                                    <label asp-for="CategoryId" class="form-label">Category</label>
+
+                                    <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId">
                                         <option value="">Select Category</option>
                                     </select>
-                                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
-                                </div>
 
+                                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                                </div>
                                 <!-- Article Content -->
                                 <div class="col-12 mb-4">
                                     <label asp-for="Content" class="form-label fw-bold" style="color: #555;">
                                         <i class="bi bi-file-text me-2"></i>
                                         @Html.DisplayNameFor(model => model.Content)
                                     </label>
-                                    <textarea asp-for="Content" class="form-control form-control-lg" 
+                                    <textarea asp-for="Content" class="form-control form-control-lg"
                                               rows="6" placeholder="Write your article content here..."></textarea>
                                     <span asp-validation-for="Content" class="text-danger small"></span>
                                 </div>
@@ -68,7 +66,7 @@
                                         <i class="bi bi-image me-2"></i>
                                         @Html.DisplayNameFor(model => model.ImageUrl)
                                     </label>
-                                    <input asp-for="ImageUrl" class="form-control form-control-lg" 
+                                    <input asp-for="ImageUrl" class="form-control form-control-lg"
                                            placeholder="https://example.com/image.jpg" />
                                     <span asp-validation-for="ImageUrl" class="text-danger small"></span>
                                 </div>
@@ -79,7 +77,7 @@
                                         <i class="bi bi-tags me-2"></i>
                                         @Html.DisplayNameFor(model => model.Topic)
                                     </label>
-                                    <input asp-for="Topic" class="form-control form-control-lg" 
+                                    <input asp-for="Topic" class="form-control form-control-lg"
                                            placeholder="Enter article topic..." />
                                     <span asp-validation-for="Topic" class="text-danger small"></span>
                                 </div>
@@ -110,4 +108,3 @@
         </div>
     </div>
 </section>
-

@@ -6,7 +6,6 @@ using NewsWire.Models;
 
 namespace NewsWire.Controllers
 {
-    [Authorize(Roles = "Admin")]
     public class TeamMembersController : Controller
     {
         private readonly NewsDbContext _context;
@@ -17,12 +16,14 @@ namespace NewsWire.Controllers
         }
 
         // GET: TeamMembers
+        [Authorize(Roles = "Admin ,User")]
         public IActionResult Index()
         {
             return View(_context.TeamMembers.ToList());
         }
 
         // GET: TeamMembers/Details/5
+        [Authorize(Roles = "Admin,User")]
         public IActionResult Details(int? id)
         {
             if (id == null)
@@ -40,7 +41,7 @@ namespace NewsWire.Controllers
             return View(teamMember);
         }
 
-        // GET: TeamMembers/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -50,6 +51,7 @@ namespace NewsWire.Controllers
         // properties you want to bind to. For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create([Bind("Id,Name,JobTitle,ImageUrl")] TeamMember teamMember)
         {
             if (ModelState.IsValid)
@@ -62,6 +64,7 @@ namespace NewsWire.Controllers
         }
 
         // GET: TeamMembers/Edit/5
+        [Authorize(Roles = "Admin")]
         public IActionResult Edit(int? id)
         {
             if (id == null)
@@ -81,6 +84,7 @@ namespace NewsWire.Controllers
         // properties you want to bind to. For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public IActionResult Edit(int id, [Bind("Id,Name,JobTitle,ImageUrl")] TeamMember teamMember)
         {
             if (id != teamMember.Id)
@@ -111,7 +115,7 @@ namespace NewsWire.Controllers
             return View(teamMember);
         }
 
-        // GET: TeamMembers/Delete/5
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(int? id)
         {
             if (id == null)
@@ -132,6 +136,7 @@ namespace NewsWire.Controllers
         // POST: TeamMembers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteConfirmed(int id)
         {
             var teamMember = _context.TeamMembers.Find(id);

@@ -1,0 +1,47 @@
+@model NewsWire.Models.News
+@{
+    ViewData["Title"] = "News Details";
+    ViewData["PageTitle"] = "News Article Details";
+}
+
+<div class="admin-page-header">
+    <h2><i class="bi bi-newspaper"></i> Article Details</h2>
+    <div>
+        <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <img src="@Model.ImageUrl" alt="@Model.Title" class="img-fluid rounded" style="width: 100%; max-height: 400px; object-fit: cover;">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="mb-3">@Model.Title</h3>
+            
+            <div class="mb-4">
+                <span class="badge-admin-primary me-2">@Model.Category?.Name</span>
+                <span class="badge bg-secondary">@Model.Topic</span>
+            </div>
+
+            <dl class="row">
+                <dt class="col-sm-2">Author:</dt>
+                <dd class="col-sm-10">@(Model.Author?.Email ?? "Unknown")</dd>
+
+                <dt class="col-sm-2">Published:</dt>
+                <dd class="col-sm-10">@Model.PublishedAt.ToString("MMMM dd, yyyy HH:mm")</dd>
+
+                <dt class="col-sm-2">Content:</dt>
+                <dd class="col-sm-10" style="white-space: pre-line;">@Model.Content</dd>
+            </dl>
+        </div>
+    </div>
+</div>

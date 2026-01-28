@@ -1,0 +1,120 @@
+@model DashboardStats
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["PageTitle"] = "Dashboard Overview";
+}
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="admin-card">
+            <h3 style="margin: 0; color: #3fbbc0;">
+                <i class="bi bi-speedometer2"></i> Welcome to NewsWire Admin Panel
+            </h3>
+            <p style="margin-top: 10px; color: #6c757d;">Manage your news platform from one central dashboard.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- News Card -->
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="admin-card stat-card">
+            <div class="stat-icon primary">
+                <i class="bi bi-newspaper"></i>
+            </div>
+            <div class="stat-number">@Model.TotalNews</div>
+            <div class="stat-label">Total News Articles</div>
+            <a href="@Url.Action("Index", "News")" class="btn btn-admin-primary btn-sm mt-3">
+                <i class="bi bi-eye"></i> View All
+            </a>
+        </div>
+    </div>
+
+    <!-- Categories Card -->
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="admin-card stat-card">
+            <div class="stat-icon success">
+                <i class="bi bi-tags"></i>
+            </div>
+            <div class="stat-number">@Model.TotalCategories</div>
+            <div class="stat-label">Categories</div>
+            <a href="@Url.Action("Index", "Categories")" class="btn btn-admin-primary btn-sm mt-3">
+                <i class="bi bi-eye"></i> View All
+            </a>
+        </div>
+    </div>
+
+    <!-- Team Members Card -->
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="admin-card stat-card">
+            <div class="stat-icon warning">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-number">@Model.TotalTeamMembers</div>
+            <div class="stat-label">Team Members</div>
+            <a href="@Url.Action("Index", "TeamMembers")" class="btn btn-admin-primary btn-sm mt-3">
+                <i class="bi bi-eye"></i> View All
+            </a>
+        </div>
+    </div>
+
+    <!-- Contact Messages Card -->
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="admin-card stat-card">
+            <div class="stat-icon danger">
+                <i class="bi bi-envelope"></i>
+            </div>
+            <div class="stat-number">@Model.TotalContactMessages</div>
+            <div class="stat-label">Contact Messages</div>
+            <a href="@Url.Action("Index", "ContactMessages")" class="btn btn-admin-primary btn-sm mt-3">
+                <i class="bi bi-eye"></i> View All
+            </a>
+        </div>
+    </div>
+
+    <!-- Users Card -->
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="admin-card stat-card">
+            <div class="stat-icon info">
+                <i class="bi bi-person-circle"></i>
+            </div>
+            <div class="stat-number">@Model.TotalUsers</div>
+            <div class="stat-label">Registered Users</div>
+            <a href="@Url.Action("Index", "Users")" class="btn btn-admin-primary btn-sm mt-3">
+                <i class="bi bi-eye"></i> View All
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="admin-card">
+            <h4 style="margin-bottom: 20px;">
+                <i class="bi bi-clock-history"></i> Quick Actions
+            </h4>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <a href="@Url.Action("Create", "News")" class="btn btn-admin-primary w-100">
+                        <i class="bi bi-plus-circle"></i> Add News
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="@Url.Action("Create", "Categories")" class="btn btn-admin-primary w-100">
+                        <i class="bi bi-plus-circle"></i> Add Category
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="@Url.Action("Create", "TeamMembers")" class="btn btn-admin-primary w-100">
+                        <i class="bi bi-plus-circle"></i> Add Team Member
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="@Url.Action("Index", "ContactMessages")" class="btn btn-admin-primary w-100">
+                        <i class="bi bi-envelope"></i> View Messages
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

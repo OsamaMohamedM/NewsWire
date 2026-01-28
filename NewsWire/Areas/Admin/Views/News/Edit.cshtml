@@ -1,0 +1,67 @@
+@model NewsWire.Models.News
+@{
+    ViewData["Title"] = "Edit News";
+    ViewData["PageTitle"] = "Edit News Article";
+}
+
+<div class="admin-page-header">
+    <h2><i class="bi bi-pencil"></i> Edit News Article</h2>
+    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+</div>
+
+<div class="admin-card">
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="PublishedAt" />
+        <input type="hidden" asp-for="AuthorId" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="admin-form-group">
+                    <label asp-for="Title" class="control-label"></label>
+                    <input asp-for="Title" class="form-control admin-form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="admin-form-group">
+                    <label asp-for="Content" class="control-label"></label>
+                    <textarea asp-for="Content" class="form-control admin-form-control" rows="10"></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="admin-form-group">
+                    <label asp-for="CategoryId" class="control-label">Category</label>
+                    <select asp-for="CategoryId" class="form-select admin-form-control" asp-items="ViewBag.CategoryId"></select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="admin-form-group">
+                    <label asp-for="Topic" class="control-label"></label>
+                    <input asp-for="Topic" class="form-control admin-form-control" />
+                    <span asp-validation-for="Topic" class="text-danger"></span>
+                </div>
+
+                <div class="admin-form-group">
+                    <label asp-for="ImageUrl" class="control-label">Image URL</label>
+                    <input asp-for="ImageUrl" class="form-control admin-form-control" />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+
+                <div class="admin-form-group">
+                    <button type="submit" class="btn btn-admin-primary w-100">
+                        <i class="bi bi-save"></i> Update Article
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

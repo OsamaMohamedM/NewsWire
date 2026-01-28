@@ -4,6 +4,7 @@
     {
         public News News { get; set; }
         public bool IsOwner { get; set; }
-        public bool IsFavorite { get; set; } = false;
+        public bool IsFavorite { get; set; }
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NewsWire.Models;
 using NewsWire.Services;
 using System.Security.Claims;
@@ -10,15 +11,15 @@ namespace NewsWire.Controllers
     [Authorize]
     public class ProfileController : Controller
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<CustomUser> _userManager;
+        private readonly SignInManager<CustomUser> _signInManager;
         private readonly IProfileService _profileService;
         private readonly IFavoriteService _favoriteService;
         private readonly INewsManagementService _newsManagementService;
 
         public ProfileController(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
+            UserManager<CustomUser> userManager,
+            SignInManager<CustomUser> signInManager,
             IProfileService profileService,
             IFavoriteService favoriteService,
             INewsManagementService newsManagementService)
@@ -84,11 +85,11 @@ namespace NewsWire.Controllers
         public async Task<IActionResult> MyNews(int page = 1)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var userNews = await _profileService.GetUserNewsAsync(userId, page, 9);
-            
+            var userNews = await _profileService.GetUserNewsAsync(userId, page, 6);
+
             ViewBag.CurrentPage = page;
             ViewBag.PageTitle = "My Articles";
-            
+
             return View("NewsPartial", userNews);
         }
 
@@ -97,10 +98,10 @@ namespace NewsWire.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var favoriteNews = await _profileService.GetUserFavoritesAsync(userId, page, 9);
-            
+
             ViewBag.CurrentPage = page;
             ViewBag.PageTitle = "My Favorites";
-            
+
             return View("NewsPartial", favoriteNews);
         }
 
@@ -109,6 +110,13 @@ namespace NewsWire.Controllers
         public async Task<IActionResult> ToggleFavorite(int newsId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                TempData["Error"] = "login First";
+                return Redirect(Request.Headers["Referer"].ToString());
+            }
+
             var isFavorite = await _favoriteService.IsFavoriteAsync(userId, newsId);
 
             bool success;
@@ -128,7 +136,7 @@ namespace NewsWire.Controllers
                 TempData["ErrorMessage"] = "Failed to update favorites. Please try again.";
             }
 
-            return RedirectToAction(nameof(Index), new { tab = "favorites" });
+            return Redirect(Request.Headers["Referer"].ToString());
         }
 
         [HttpPost]
@@ -144,7 +152,6 @@ namespace NewsWire.Controllers
                 return RedirectToAction(nameof(Index), new { tab = "articles" });
             }
 
-            // Use NewsController for actual deletion (DRY principle)
             return RedirectToAction("Delete", "News", new { id = newsId, returnUrl = Url.Action("Index", "Profile", new { tab = "articles" }) });
         }
 
@@ -160,7 +167,6 @@ namespace NewsWire.Controllers
                 return RedirectToAction(nameof(Index), new { tab = "articles" });
             }
 
-            // Use NewsController for actual editing (DRY principle)
             return RedirectToAction("Edit", "News", new { id = newsId, returnUrl = Url.Action("Index", "Profile", new { tab = "articles" }) });
         }
 
@@ -169,7 +175,7 @@ namespace NewsWire.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var statistics = await _profileService.GetProfileStatisticsAsync(userId);
-            
+
             return Json(statistics);
         }
     }

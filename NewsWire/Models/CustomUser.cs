@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NewsWire.Models
 {
-    public class User : IdentityUser
+    public class CustomUser : IdentityUser
     {
       
         [MaxLength(50)]

@@ -1,0 +1,45 @@
+@model NewsWire.Models.TeamMember
+@{
+    ViewData["Title"] = "Delete Team Member";
+    ViewData["PageTitle"] = "Delete Team Member";
+}
+
+<div class="admin-page-header">
+    <h2><i class="bi bi-trash"></i> Delete Team Member</h2>
+    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+</div>
+
+<div class="admin-card">
+    <div class="alert alert-danger">
+        <h5><i class="bi bi-exclamation-triangle"></i> Confirm Deletion</h5>
+        <p>Are you sure you want to delete this team member? This action cannot be undone.</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <img src="@Model.ImageUrl" alt="@Model.Name" class="rounded-circle" style="width: 200px; height: 200px; object-fit: cover; border: 4px solid #3fbbc0;">
+        </div>
+        <div class="col-md-8">
+            <dl class="row">
+                <dt class="col-sm-3">Name:</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
+
+                <dt class="col-sm-3">Job Title:</dt>
+                <dd class="col-sm-9">@Model.JobTitle</dd>
+
+                <dt class="col-sm-3">Image URL:</dt>
+                <dd class="col-sm-9">@Model.ImageUrl</dd>
+            </dl>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post" class="mt-4">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-admin-danger">
+            <i class="bi bi-trash"></i> Delete Team Member
+        </button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

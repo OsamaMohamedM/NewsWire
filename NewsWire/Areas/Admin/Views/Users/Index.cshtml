@@ -1,0 +1,75 @@
+@model IEnumerable<UserViewModel>
+@{
+    ViewData["Title"] = "Users Management";
+    ViewData["PageTitle"] = "Users & Roles Management";
+}
+
+<div class="admin-page-header">
+    <h2><i class="bi bi-person-circle"></i> Users & Roles</h2>
+</div>
+
+<div class="admin-table">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Any())
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@(item.FirstName ?? "") @(item.LastName ?? "")</strong>
+                            @if (string.IsNullOrWhiteSpace(item.FirstName) && string.IsNullOrWhiteSpace(item.LastName))
+                            {
+                                <span class="text-muted">No name set</span>
+                            }
+                        </td>
+                        <td>@item.Email</td>
+                        <td>
+                            @foreach (var role in item.Roles)
+                            {
+                                <span class="badge-admin-primary me-1">@role</span>
+                            }
+                            @if (!item.Roles.Any())
+                            {
+                                <span class="text-muted">No roles</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="@Url.Action("Details", new { id = item.Id })" class="action-btn action-btn-view">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="@Url.Action("Edit", new { id = item.Id })" class="action-btn action-btn-edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="@Url.Action("Delete", new { id = item.Id })" class="action-btn action-btn-delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4">
+                        <div class="admin-empty-state">
+                            <i class="bi bi-person-circle"></i>
+                            <h4>No Users Found</h4>
+                            <p>There are no registered users in the system.</p>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

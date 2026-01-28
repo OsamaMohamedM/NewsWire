@@ -1,0 +1,48 @@
+@model NewsWire.Models.TeamMember
+@{
+    ViewData["Title"] = "Edit Team Member";
+    ViewData["PageTitle"] = "Edit Team Member";
+}
+
+<div class="admin-page-header">
+    <h2><i class="bi bi-pencil"></i> Edit Team Member</h2>
+    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+</div>
+
+<div class="admin-card">
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        
+        <div class="admin-form-group">
+            <label asp-for="Name" class="control-label"></label>
+            <input asp-for="Name" class="form-control admin-form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="admin-form-group">
+            <label asp-for="JobTitle" class="control-label">Job Title</label>
+            <input asp-for="JobTitle" class="form-control admin-form-control" />
+            <span asp-validation-for="JobTitle" class="text-danger"></span>
+        </div>
+
+        <div class="admin-form-group">
+            <label asp-for="ImageUrl" class="control-label">Image URL</label>
+            <input asp-for="ImageUrl" class="form-control admin-form-control" />
+            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+        </div>
+
+        <div class="admin-form-group">
+            <button type="submit" class="btn btn-admin-primary">
+                <i class="bi bi-save"></i> Update Team Member
+            </button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
