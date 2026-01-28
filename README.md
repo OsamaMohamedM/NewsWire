@@ -3,12 +3,12 @@
 NewsWire is a modern ASP.NET Core MVC/Razor application (targeting .NET 10) for publishing and managing news articles with user accounts, author ownership, favorites, and a polished UI theme.
 
 ## Features
-- ?? News management: create, edit, delete, and view articles with category/topic support.
-- ?? Author ownership: articles are tied to the logged-in author; permissions enforced on edit/delete.
-- ?? Favorites: users can favorite/unfavorite articles and view their list.
-- ?? Profile dashboard: update name/photo, see authored news, favorites, and stats.
-- ?? Identity: login/registration/reset with themed account pages.
-- ?? UI/UX: responsive Bootstrap-based styling with custom profile/account themes.
+-  News management: create, edit, delete, and view articles with category/topic support.
+-  Author ownership: articles are tied to the logged-in author; permissions enforced on edit/delete.
+-  Favorites: users can favorite/unfavorite articles and view their list.
+-  Profile dashboard: update name/photo, see authored news, favorites, and stats.
+-  Identity: login/registration/reset with themed account pages.
+-  UI/UX: responsive Bootstrap-based styling with custom profile/account themes.
 
 ## Tech Stack
 - ASP.NET Core MVC/Razor (.NET 10)
@@ -41,12 +41,12 @@ dotnet run
 - Update DB: `dotnet ef database update`
 
 ## Project Structure (high level)
-- `Controllers/` — MVC controllers (News, Profile, etc.)
-- `Areas/Identity/` — Identity UI (login/register/reset)
-- `Models/` — domain models & view models (User, News, Favorites, Profile)
-- `Services/` — profile/favorites/news permission services (SOLID)
-- `Views/` — Razor views and partials
-- `wwwroot/` — static assets (custom CSS, JS)
+- `Controllers/` â€” MVC controllers (News, Profile, etc.)
+- `Areas/Identity/` â€” Identity UI (login/register/reset)
+- `Models/` â€” domain models & view models (User, News, Favorites, Profile)
+- `Services/` â€” profile/favorites/news permission services (SOLID)
+- `Views/` â€” Razor views and partials
+- `wwwroot/` â€” static assets (custom CSS, JS)
 
 ## Key Security/Behavior
 - Only owners/admins can edit/delete their articles.
