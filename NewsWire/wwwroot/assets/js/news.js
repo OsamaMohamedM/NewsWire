@@ -18,7 +18,6 @@
         initializeNewsCards();
         initializeReadMore();
         initializeShareFunctionality();
-        initializeFavorites();
         initializeSearch();
         initializeLazyLoading();
     }

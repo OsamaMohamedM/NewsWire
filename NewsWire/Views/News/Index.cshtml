@@ -94,18 +94,18 @@
                                     <div class="d-flex align-items-center">
                                         <div class="news-actions d-flex align-items-center me-3">
 
-                                            <form asp-controller="Profile" asp-action="ToggleFavorite" method="post" class="d-inline">
+                                            <form asp-controller="Profile" asp-action="ToggleFavorite" method="post" class="favorite-form d-inline">
 
                                                 <input type="hidden" name="newsId" value="@newsItem.News.Id" />
 
-                                                <button type="submit" class="btn p-0 border-0 bg-transparent text-muted me-2" title="Toggle Favorite">
+                                                <button type="submit" class="btn p-0 border-0 bg-transparent me-2" title="Toggle Favorite">
                                                     @if (newsItem.IsFavorite)
                                                     {
                                                         <i class="bi bi-heart-fill text-danger"></i>
                                                     }
                                                     else
                                                     {
-                                                        <i class="bi bi-heart"></i>
+                                                        <i class="bi bi-heart text-muted"></i>
                                                     }
                                                 </button>
                                             </form>

@@ -466,10 +466,71 @@
     .page-title {
         display: none;
     }
-    
+
     .news-item {
         break-inside: avoid;
         box-shadow: none;
         border: 1px solid #ddd;
     }
+}
+
+/* Favorite Heart Button */
+.favorite-form button {
+    transition: transform 0.25s ease;
+}
+
+.favorite-form button:hover {
+    transform: scale(1.25);
+}
+
+.favorite-form button:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.favorite-form button i.bi-heart {
+    color: #6c757d;
+    transition: color 0.25s ease;
+}
+
+.favorite-form button:hover i.bi-heart {
+    color: #dc3545;
+}
+
+.favorite-form button i.bi-heart-fill.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Toast Notifications (global) */
+.toast-notification {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 0.9rem 1.4rem;
+    border-radius: 12px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    max-width: 320px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toast-notification.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-success {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+}
+
+.toast-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
 }
