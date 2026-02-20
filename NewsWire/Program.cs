@@ -48,35 +48,26 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddControllersWithViews(options =>
 {
-    // Set global request size limit to 10MB
     options.MaxModelBindingCollectionSize = 10000;
 })
 .AddRazorRuntimeCompilation();
 
-// Configure Kestrel server options for file uploads
 builder.Services.Configure<Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions>(options =>
 {
-    options.Limits.MaxRequestBodySize = 10485760; // 10MB
+    options.Limits.MaxRequestBodySize = 10485760;
 });
-
-// Configure IIS server options for file uploads  
 builder.Services.Configure<Microsoft.AspNetCore.Builder.IISServerOptions>(options =>
 {
-    options.MaxRequestBodySize = 10485760; // 10MB
+    options.MaxRequestBodySize = 10485760;
 });
 
-// Configure form options for multipart body length
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 10485760; // 10MB
-    options.ValueLengthLimit = int.MaxValue;
-    options.MultipartBoundaryLengthLimit = int.MaxValue;
-    options.MultipartHeadersLengthLimit = int.MaxValue;
+    options.MultipartBodyLengthLimit = 10485760;
 });
 
 var app = builder.Build();
 
-// Create Uploads directory if it doesn't exist
 var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "Uploads");
 if (!Directory.Exists(uploadsPath))
 {
@@ -84,19 +75,16 @@ if (!Directory.Exists(uploadsPath))
     app.Logger.LogInformation("Created Uploads directory at: {UploadsPath}", uploadsPath);
 }
 
-// Configure static file serving for Uploads folder (outside wwwroot)
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
     RequestPath = "/uploads",
     OnPrepareResponse = ctx =>
     {
-        // Add cache headers for uploaded images
         ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=31536000");
     }
 });
 
-// Seed roles and admin user
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

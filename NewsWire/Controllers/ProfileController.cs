@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using NewsWire.Models;
 using NewsWire.Services.Interfaces;
-using System.Security.Claims;
 
 namespace NewsWire.Controllers
 {
@@ -62,7 +61,7 @@ namespace NewsWire.Controllers
         [ValidateAntiForgeryToken]
         [RequestSizeLimit(10485760)]
         [RequestFormLimits(MultipartBodyLengthLimit = 10485760)]
-        public async Task<IActionResult> UpdateProfile(ProfileViewModel model)
+        public async Task<IActionResult> UpdateProfile([Bind(Prefix = "Profile")] ProfileViewModel model)
         {
             var currentUserId = GetCurrentUserId();
 
@@ -163,31 +162,25 @@ namespace NewsWire.Controllers
             var userId = GetCurrentUserId();
 
             if (userId == null)
-            {
-                SetErrorMessage("Please login first.");
-                return Redirect(Request.Headers["Referer"].ToString());
-            }
+                return Json(new { success = false, message = "Please login first." });
 
             var isFavorite = await _favoriteService.IsFavoriteAsync(userId, newsId);
 
             bool success;
             if (isFavorite)
-            {
                 success = await _favoriteService.RemoveFromFavoritesAsync(userId, newsId);
-                SetSuccessMessage("Article removed from favorites!");
-            }
             else
-            {
                 success = await _favoriteService.AddToFavoritesAsync(userId, newsId);
-                SetSuccessMessage("Article added to favorites!");
-            }
 
             if (!success)
-            {
-                SetErrorMessage("Failed to update favorites. Please try again.");
-            }
+                return Json(new { success = false, message = "Failed to update favorites. Please try again." });
 
-            return Redirect(Request.Headers["Referer"].ToString());
+            return Json(new
+            {
+                success = true,
+                isFavorite = !isFavorite,
+                message = isFavorite ? "Removed from favorites!" : "Added to favorites!"
+            });
         }
 
         [HttpPost]

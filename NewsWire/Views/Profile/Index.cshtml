@@ -48,7 +48,6 @@
             </div>
         </div>
 
-        <!-- Success/Error Messages -->
         @if (TempData["SuccessMessage"] != null)
         {
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -112,13 +111,12 @@
             <div class="tab-pane fade @(Model.ActiveTab == "profile" ? "show active" : "")"
                  id="profile" role="tabpanel">
                 <div class="profile-content">
-                    <h4 class="mb-4">
+                    <h4 class="mb-4 text-dark">
                         <i class="bi bi-gear me-2"></i>
                         Profile Settings
                     </h4>
 
                     <form asp-action="UpdateProfile" method="post" enctype="multipart/form-data" class="profile-form">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
                         <div class="row">
                             <!-- Profile Image Section -->
@@ -193,7 +191,7 @@
                  id="articles" role="tabpanel">
                 <div class="profile-content">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4>
+                        <h4 class="text-dark">
                             <i class="bi bi-newspaper me-2"></i>
                             My Articles
                         </h4>
@@ -250,7 +248,7 @@
             <div class="tab-pane fade @(Model.ActiveTab == "favorites" ? "show active" : "")"
                  id="favorites" role="tabpanel">
                 <div class="profile-content">
-                    <h4 class="mb-4">
+                    <h4 class="mb-4 text-dark">
                         <i class="bi bi-heart me-2"></i>
                         Favorite Articles
                     </h4>
@@ -302,62 +300,135 @@
             <div class="tab-pane fade @(Model.ActiveTab == "statistics" ? "show active" : "")"
                  id="statistics" role="tabpanel">
                 <div class="profile-content">
-                    <h4 class="mb-4">
+                    <h4 class="mb-4 text-dark">
                         <i class="bi bi-bar-chart me-2"></i>
                         Publishing Statistics
                     </h4>
 
-                    <div class="row">
-                        <!-- Overview Stats -->
-                        <div class="col-md-6 mb-4">
-                            <div class="statistics-card">
-                                <h5>Overview</h5>
-                                <div class="row text-center">
-                                    <div class="col-6 mb-3">
-                                        <div class="stat-item">
-                                            <span class="stat-number text-primary">@Model.Statistics.TotalArticles</span>
-                                            <small class="stat-label">Total Articles</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-6 mb-3">
-                                        <div class="stat-item">
-                                            <span class="stat-number text-success">@Model.Statistics.PublishedThisMonth</span>
-                                            <small class="stat-label">This Month</small>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="row g-4 mb-4">
+                        <div class="col-6 col-md-3">
+                            <div class="metric-card metric-primary">
+                                <div class="metric-icon"><i class="bi bi-newspaper"></i></div>
+                                <div class="metric-value">@Model.Statistics.TotalArticles</div>
+                                <div class="metric-label">Total Articles</div>
                             </div>
                         </div>
+                        <div class="col-6 col-md-3">
+                            <div class="metric-card metric-success">
+                                <div class="metric-icon"><i class="bi bi-calendar-check"></i></div>
+                                <div class="metric-value">@Model.Statistics.PublishedThisMonth</div>
+                                <div class="metric-label">This Month</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="metric-card metric-warning">
+                                <div class="metric-icon"><i class="bi bi-heart-fill"></i></div>
+                                <div class="metric-value">@Model.Statistics.TotalFavorites</div>
+                                <div class="metric-label">Total Saves</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="metric-card metric-info">
+                                <div class="metric-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                                <div class="metric-value">
+                                    @(Model.Statistics.TotalArticles > 0
+                                        ? $"{Math.Round((double)Model.Statistics.TotalFavorites / Model.Statistics.TotalArticles * 100, 1)}%"
+                                        : "0%")
+                                </div>
+                                <div class="metric-label">Engagement Rate</div>
+                            </div>
+                        </div>
+                    </div>
 
-                        <!-- Category Breakdown -->
-                        <div class="col-md-6 mb-4">
+                    <div class="row g-4">
+                        <div class="col-md-6">
                             <div class="statistics-card">
-                                <h5>Category Breakdown</h5>
+                                <div class="statistics-card-header">
+                                    <h5 class="text-dark"><i class="bi bi-tags me-2"></i>Category Breakdown</h5>
+                                </div>
                                 @if (Model.Statistics.CategoryBreakdown.Any())
                                 {
                                     <div class="category-breakdown">
                                         @foreach (var category in Model.Statistics.CategoryBreakdown.Take(5))
                                         {
-                                            <div class="category-item">
-                                                <div>
-                                                    <strong>@category.CategoryName</strong>
-                                                    <small class="text-muted">(@category.ArticleCount articles)</small>
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span class="category-name">@category.CategoryName</span>
+                                                    <div>
+                                                        <span class="badge bg-primary me-1">@category.ArticleCount</span>
+                                                        <small class="text-muted">@category.Percentage%</small>
+                                                    </div>
                                                 </div>
-                                                <span class="badge bg-primary">@category.Percentage%</span>
-                                            </div>
-                                            <div class="category-progress">
-                                                <div class="category-progress-bar" style="width: @category.Percentage%"></div>
+                                                <div class="category-progress">
+                                                    <div class="category-progress-bar" style="width: @category.Percentage%"></div>
+                                                </div>
                                             </div>
                                         }
                                     </div>
                                 }
                                 else
                                 {
-                                    <p class="text-muted">No data available yet.</p>
+                                    <div class="text-center py-4">
+                                        <i class="bi bi-tags text-muted" style="font-size: 2rem;"></i>
+                                        <p class="text-muted mt-2 mb-0">No category data available yet.</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="statistics-card">
+                                <div class="statistics-card-header">
+                                    <h5 class="text-dark"><i class="bi bi-activity me-2"></i>Monthly Activity</h5>
+                                </div>
+                                @if (Model.Statistics.ActivityChart.Any())
+                                {
+                                    <div class="activity-chart">
+                                        @{
+                                            var maxCount = Model.Statistics.ActivityChart.Max(a => a.ArticleCount);
+                                        }
+                                        @foreach (var month in Model.Statistics.ActivityChart)
+                                        {
+                                            var heightPct = maxCount > 0 ? (double)month.ArticleCount / maxCount * 100 : 0;
+                                            <div class="activity-bar-wrapper" title="@month.Month: @month.ArticleCount article(s)">
+                                                <span class="activity-count">@month.ArticleCount</span>
+                                                <div class="activity-bar">
+                                                    <div class="activity-bar-fill" style="height: @heightPct%"></div>
+                                                </div>
+                                                <span class="activity-label">@(month.Month.Length >= 7 ? month.Month.Substring(5) : month.Month)</span>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-center py-4">
+                                        <i class="bi bi-bar-chart text-muted" style="font-size: 2rem;"></i>
+                                        <p class="text-muted mt-2 mb-0">No activity data available yet.</p>
+                                    </div>
                                 }
                             </div>
                         </div>
                     </div>
+
+                    @if (Model.Statistics.CategoryBreakdown.Any())
+                    {
+                        var topCategory = Model.Statistics.CategoryBreakdown.First();
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="highlight-card">
+                                    <div class="highlight-icon">
+                                        <i class="bi bi-trophy-fill"></i>
+                                    </div>
+                                    <div class="highlight-content">
+                                        <span class="highlight-label">Most Active Category</span>
+                                        <span class="highlight-value">@topCategory.CategoryName</span>
+                                        <span class="highlight-sub">@topCategory.ArticleCount articles — @topCategory.Percentage% of your total content</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -366,11 +437,10 @@
 
 @section Scripts {
     <script>
-        // Image preview functionality
         function previewImage(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     const uploadSection = input.closest('.image-upload-section');
                     uploadSection.innerHTML = `
                         <img src="${e.target.result}" alt="Preview" class="current-image-preview mb-3">
@@ -382,16 +452,71 @@
             }
         }
 
-        // Auto-dismiss alerts after 5 seconds
-        setTimeout(function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
+        document.addEventListener('submit', async function (e) {
+            const form = e.target;
+            if (!form.classList.contains('favorite-form')) return;
+            e.preventDefault();
+
+            const button = form.querySelector('button[type="submit"]');
+            button.disabled = true;
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form)
+                });
+
+                if (!response.ok) throw new Error();
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const icon = button.querySelector('i');
+                    const label = button.querySelector('span');
+                    if (result.isFavorite) {
+                        icon.className = 'bi bi-heart-fill me-1';
+                        button.classList.add('active');
+                        if (label) label.textContent = 'Saved';
+                    } else {
+                        icon.className = 'bi bi-heart me-1';
+                        button.classList.remove('active');
+                        if (label) label.textContent = 'Save';
+                    }
+                    showToast(result.message, 'success');
+                } else {
+                    showToast(result.message || 'Action failed.', 'danger');
+                }
+            } catch {
+                showToast('An error occurred. Please try again.', 'danger');
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        function showToast(message, type) {
+            const existing = document.querySelector('.toast-notification');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${message}`;
+            document.body.appendChild(toast);
+
+            requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 350);
+            }, 3000);
+        }
+
+        setTimeout(function () {
+            document.querySelectorAll('.alert').forEach(alert => {
                 const bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
             });
         }, 5000);
 
-        // Smooth tab switching
         document.addEventListener('shown.bs.tab', function (event) {
             const targetTab = event.target.getAttribute('data-bs-target');
             if (targetTab) {

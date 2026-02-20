@@ -22,5 +22,10 @@
   <ItemGroup>
     <Folder Include="wwwroot\Images\News\" />
   </ItemGroup>
+	<ItemGroup>
+		<Watch Remove="Uploads\**" />
+		<Watch Remove="wwwroot\Images\**" />
+		<Watch Remove="wwwroot\uploads\**" />
+	</ItemGroup>
 
 </Project>
