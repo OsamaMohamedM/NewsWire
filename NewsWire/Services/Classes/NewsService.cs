@@ -1,21 +1,21 @@
-using Microsoft.EntityFrameworkCore;
-using NewsWire.Data;
 using NewsWire.Models;
+using NewsWire.Repositories.Interfaces;
+using NewsWire.Services.Interfaces;
 
-namespace NewsWire.Services
+namespace NewsWire.Services.Classes
 {
     public class NewsService : INewsService
     {
-        private readonly NewsDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IFavoriteService _favoriteService;
         private readonly ILogger<NewsService> _logger;
 
         public NewsService(
-            NewsDbContext context,
+            IUnitOfWork unitOfWork,
             IFavoriteService favoriteService,
             ILogger<NewsService> logger)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
             _favoriteService = favoriteService;
             _logger = logger;
         }
@@ -24,15 +24,7 @@ namespace NewsWire.Services
         {
             try
             {
-                var source = _context.News
-                    .Where(n => n.CategoryId == categoryId)
-                    .Include(n => n.Category)
-                    .OrderByDescending(n => n.PublishedAt);
-
-                var pagedNews = await source
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToListAsync();
+                var pagedNews = await _unitOfWork.News.GetNewsByCategoryPagedAsync(categoryId, page, pageSize);
 
                 HashSet<int> favoriteNewsIds = new();
                 if (userId != null)
@@ -59,15 +51,9 @@ namespace NewsWire.Services
         {
             try
             {
-                var news = await _context.News
-                    .Include(n => n.Category)
-                    .FirstOrDefaultAsync(m => m.Id == newsId);
-
+                var news = await _unitOfWork.News.GetNewsWithCategoryAsync(newsId);
                 if (news == null)
-                {
-                    _logger.LogWarning("News not found: {NewsId}", newsId);
                     return null;
-                }
 
                 var isFavorite = userId != null && await _favoriteService.IsFavoriteAsync(userId, newsId);
 
@@ -89,11 +75,38 @@ namespace NewsWire.Services
         {
             try
             {
-                return await _context.News.FindAsync(id);
+                return await _unitOfWork.News.GetByIdAsync(id);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving news: {NewsId}", id);
+                return null;
+            }
+        }
+
+        public async Task<List<News>> GetAllNewsWithDetailsAsync()
+        {
+            try
+            {
+                var news = await _unitOfWork.News.GetAllWithDetailsAsync();
+                return news.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving all news with details");
+                return new List<News>();
+            }
+        }
+
+        public async Task<News?> GetNewsWithDetailsAsync(int id)
+        {
+            try
+            {
+                return await _unitOfWork.News.GetNewsWithDetailsAsync(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving news with details: {NewsId}", id);
                 return null;
             }
         }
@@ -103,21 +116,11 @@ namespace NewsWire.Services
             try
             {
                 if (news == null)
-                {
-                    _logger.LogWarning("Attempted to create null news");
                     return false;
-                }
 
-                _context.News.Add(news);
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    _logger.LogInformation("News created: {NewsTitle} by {AuthorId}", news.Title, news.AuthorId);
-                    return true;
-                }
-
-                return false;
+                await _unitOfWork.News.AddAsync(news);
+                var result = await _unitOfWork.SaveChangesAsync();
+                return result > 0;
             }
             catch (Exception ex)
             {
@@ -126,39 +129,28 @@ namespace NewsWire.Services
             }
         }
 
-        public async Task<bool> UpdateNewsAsync(News news, string? oldImageUrl)
+        public async Task<bool> UpdateNewsAsync(News news)
         {
             try
             {
                 if (news == null)
-                {
-                    _logger.LogWarning("Attempted to update null news");
                     return false;
-                }
 
-                var existingNews = await _context.News.FindAsync(news.Id);
+                var existingNews = await _unitOfWork.News.GetByIdAsync(news.Id);
                 if (existingNews == null)
-                {
-                    _logger.LogWarning("News not found for update: {NewsId}", news.Id);
                     return false;
-                }
 
                 existingNews.Title = news.Title;
                 existingNews.Content = news.Content;
                 existingNews.Topic = news.Topic;
                 existingNews.CategoryId = news.CategoryId;
                 existingNews.ImageUrl = news.ImageUrl;
+                existingNews.AuthorId = news.AuthorId;
+                existingNews.PublishedAt = news.PublishedAt;
 
-                _context.Entry(existingNews).State = EntityState.Modified;
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    _logger.LogInformation("News updated: {NewsId}", news.Id);
-                    return true;
-                }
-
-                return false;
+                _unitOfWork.News.Update(existingNews);
+                var result = await _unitOfWork.SaveChangesAsync();
+                return result > 0;
             }
             catch (Exception ex)
             {
@@ -171,23 +163,13 @@ namespace NewsWire.Services
         {
             try
             {
-                var news = await _context.News.FindAsync(id);
+                var news = await _unitOfWork.News.GetByIdAsync(id);
                 if (news == null)
-                {
-                    _logger.LogWarning("News not found for deletion: {NewsId}", id);
                     return false;
-                }
 
-                _context.News.Remove(news);
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    _logger.LogInformation("News deleted: {NewsId}", id);
-                    return true;
-                }
-
-                return false;
+                _unitOfWork.News.Remove(news);
+                var result = await _unitOfWork.SaveChangesAsync();
+                return result > 0;
             }
             catch (Exception ex)
             {
@@ -200,7 +182,7 @@ namespace NewsWire.Services
         {
             try
             {
-                var news = await _context.News.FindAsync(newsId);
+                var news = await _unitOfWork.News.GetByIdAsync(newsId);
                 return news != null && news.AuthorId == userId;
             }
             catch (Exception ex)
@@ -214,7 +196,7 @@ namespace NewsWire.Services
         {
             try
             {
-                var news = await _context.News.FindAsync(newsId);
+                var news = await _unitOfWork.News.GetByIdAsync(newsId);
                 return news != null && news.AuthorId == userId;
             }
             catch (Exception ex)
@@ -228,18 +210,27 @@ namespace NewsWire.Services
         {
             try
             {
-                var totalItems = await _context.News
-                    .Where(n => n.CategoryId == categoryId)
-                    .CountAsync();
-
+                var totalItems = await _unitOfWork.News.CountAsync(n => n.CategoryId == categoryId);
                 var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
                 return (totalItems, totalPages);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calculating pagination: {CategoryId}", categoryId);
                 return (0, 0);
+            }
+        }
+
+        public async Task<bool> NewsExistsAsync(int id)
+        {
+            try
+            {
+                return await _unitOfWork.News.ExistsAsync(n => n.Id == id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking news existence: {NewsId}", id);
+                return false;
             }
         }
     }

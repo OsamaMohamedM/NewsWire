@@ -15,7 +15,7 @@
     <form asp-action="Edit" method="post">
         <input type="hidden" asp-for="Id" />
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-        
+
         <div class="row">
             <div class="col-md-6">
                 <div class="admin-form-group">
@@ -53,15 +53,22 @@
         <div class="admin-form-group">
             <label class="control-label">Assign Roles</label>
             <div class="p-3" style="background: #f8f9fa; border-radius: 8px;">
-                @foreach (var role in Model.AllRoles)
+                @if (Model.AllRoles != null && Model.AllRoles.Any())
                 {
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="SelectedRoles" value="@role" 
-                               @(Model.UserRoles.Contains(role) ? "checked" : "") id="role_@role">
-                        <label class="form-check-label" for="role_@role">
-                            @role
-                        </label>
-                    </div>
+                    @foreach (var role in Model.AllRoles)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="SelectedRoles" value="@role"
+                                   @((Model.UserRoles?.Contains(role) ?? false) ? "checked" : "") id="role_@role">
+                            <label class="form-check-label" for="role_@role">
+                                @role
+                            </label>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">No roles available</p>
                 }
             </div>
         </div>
@@ -76,5 +83,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -22,9 +22,7 @@
                                     <i class="bi bi-newspaper me-2"></i>
                                     @Html.DisplayFor(model => Model.News.Title)
                                 </h4>
-                               <span class="badge bg-info text-dark rounded-pill px-3 py-1">
-    Science
-</span>
+                               
                             </div>
                             
                         </div>
@@ -103,7 +101,7 @@
                                     </label>
                                     <div class="info-value p-4 bg-light rounded border-start border-4">
                                         <div class="text-dark" style="line-height: 1.8; text-align: justify;">
-                                            @Html.Raw(Html.DisplayFor(model => Model.News.Content).ToString().Replace("\n", "<br />"))
+                                            @Html.Raw(Model.News.Content?.Replace("\n", "<br />"))
                                         </div>
                                     </div>
                                 </div>
@@ -120,7 +118,7 @@
                                         Back
                                     </a>
 
-                                    @if(Model.IsOwner)
+                                    @if(User.Identity.IsAuthenticated && (Model.IsOwner || User.IsInRole("Admin")))
                                     {     
                                     <div class="d-flex gap-2">
                                         <a asp-action="Edit" asp-route-id="@Model.News.Id" class="btn btn-primary px-4 py-2">

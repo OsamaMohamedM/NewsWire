@@ -15,7 +15,7 @@
         <div class="profile-header">
             <div class="row align-items-center">
                 <div class="col-md-3 text-center text-md-start mb-3 mb-md-0">
-                    <img src="@(Model.Profile.CurrentPicturePath ?? "/assets/img/Local/default-avatar.jpg")"
+                    <img src="@(string.IsNullOrEmpty(Model.Profile.CurrentPicturePath) ? "/assets/img/Local/default-avatar.jpg" : Model.Profile.CurrentPicturePath)"
                          onerror="this.onerror=null;this.src='/assets/img/Local/default-avatar.jpg';"
                          alt="Profile Picture"
                          class="profile-avatar">
@@ -284,7 +284,7 @@
                             <h5 class="mb-2">No Articles Yet</h5>
                             <p class="text-muted mb-4">You haven't Favorites  any articles yet. Start sharing your thoughts!</p>
 
-                            <a href="@Url.Action("Index", "Home")"
+                            <a href="@Url.Action("Index", "Categories")"
                                class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2"
                                style="width: auto !important; height: auto !important;">
 

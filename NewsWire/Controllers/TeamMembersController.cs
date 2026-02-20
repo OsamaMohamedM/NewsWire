@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NewsWire.Services;
 
 namespace NewsWire.Controllers
 {

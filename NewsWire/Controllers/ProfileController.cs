@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NewsWire.Models;
-using NewsWire.Services;
+using NewsWire.Services.Interfaces;
 using System.Security.Claims;
 
 namespace NewsWire.Controllers
@@ -36,11 +35,11 @@ namespace NewsWire.Controllers
         public async Task<IActionResult> Index(string tab = "profile")
         {
             var userId = GetCurrentUserId();
-            if (string.IsNullOrEmpty(userId)) 
+            if (string.IsNullOrEmpty(userId))
                 return HandleNotFound("User", 0);
 
             var profile = await _profileService.GetProfileAsync(userId);
-            if (profile == null) 
+            if (profile == null)
                 return HandleNotFound("Profile", 0);
 
             var statistics = await _profileService.GetProfileStatisticsAsync(userId);
@@ -61,15 +60,18 @@ namespace NewsWire.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RequestSizeLimit(10485760)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 10485760)]
         public async Task<IActionResult> UpdateProfile(ProfileViewModel model)
         {
+            var currentUserId = GetCurrentUserId();
+
             if (!ModelState.IsValid)
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var profileData = await _profileService.GetProfileAsync(userId);
-                var statistics = await _profileService.GetProfileStatisticsAsync(userId);
-                var userNews = await _profileService.GetUserNewsAsync(userId, 1, 6);
-                var favoriteNews = await _profileService.GetUserFavoritesAsync(userId, 1, 6);
+                var profileData = await _profileService.GetProfileAsync(currentUserId);
+                var statistics = await _profileService.GetProfileStatisticsAsync(currentUserId);
+                var userNews = await _profileService.GetUserNewsAsync(currentUserId, 1, 6);
+                var favoriteNews = await _profileService.GetUserFavoritesAsync(currentUserId, 1, 6);
 
                 var viewModel = new UserProfileDashboardViewModel
                 {
@@ -83,34 +85,48 @@ namespace NewsWire.Controllers
                 return View("Index", viewModel);
             }
 
-            var currentUserId = GetCurrentUserId();
-            var currentUser = await _userManager.FindByIdAsync(currentUserId);
-            
-            // Check if email has changed
-            bool emailChanged = !currentUser.Email.Equals(model.Email, StringComparison.OrdinalIgnoreCase);
-            
-            // Update profile (name and photo)
-            var success = await _profileService.UpdateProfileAsync(currentUserId, model);
-
-            if (success)
+            try
             {
-                // Update email if it changed
-                if (emailChanged)
+                var currentUser = await _userManager.FindByIdAsync(currentUserId);
+                if (currentUser == null)
                 {
-                    var emailUpdateSuccess = await _profileService.UpdateEmailAsync(currentUserId, model.Email);
-                    if (!emailUpdateSuccess)
-                    {
-                        SetErrorMessage("Profile updated but failed to update email. Email may already be in use.");
-                        return RedirectToAction(nameof(Index), new { tab = "profile" });
-                    }
+                    SetErrorMessage("User not found. Please log in again.");
+                    return RedirectToAction(nameof(Index), new { tab = "profile" });
                 }
 
-                await _signInManager.RefreshSignInAsync(await _userManager.FindByIdAsync(currentUserId));
-                SetSuccessMessage("Profile updated successfully!");
+                bool emailChanged = !string.IsNullOrEmpty(model.Email)
+                    && !string.IsNullOrEmpty(currentUser.Email)
+                    && !currentUser.Email.Equals(model.Email, StringComparison.OrdinalIgnoreCase);
+
+                var success = await _profileService.UpdateProfileAsync(currentUserId, model);
+
+                if (success)
+                {
+                    if (emailChanged)
+                    {
+                        var emailUpdateSuccess = await _profileService.UpdateEmailAsync(currentUserId, model.Email);
+                        if (!emailUpdateSuccess)
+                        {
+                            SetErrorMessage("Profile updated but failed to update email. Email may already be in use.");
+                            return RedirectToAction(nameof(Index), new { tab = "profile" });
+                        }
+                    }
+
+                    var refreshUser = await _userManager.FindByIdAsync(currentUserId);
+                    if (refreshUser != null)
+                        await _signInManager.RefreshSignInAsync(refreshUser);
+
+                    SetSuccessMessage("Profile updated successfully!");
+                }
+                else
+                {
+                    SetErrorMessage("Failed to update profile. Please try again.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                SetErrorMessage("Failed to update profile. Please try again.");
+                _logger.LogError(ex, "Error updating profile for user: {UserId}", currentUserId);
+                SetErrorMessage("An error occurred while updating your profile.");
             }
 
             return RedirectToAction(nameof(Index), new { tab = "profile" });

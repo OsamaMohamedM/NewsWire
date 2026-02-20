@@ -1,16 +1,7 @@
-using Microsoft.AspNetCore.Http;
+using NewsWire.Services.Interfaces;
 
-namespace NewsWire.Services
+namespace NewsWire.Services.Classes
 {
-    public interface IFileUploadService
-    {
-        Task<string> UploadImageAsync(IFormFile file, string folder);
-
-        Task<bool> DeleteImageAsync(string imagePath);
-
-        bool ValidateImageFile(IFormFile file);
-    }
-
     public class FileUploadService : IFileUploadService
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -24,35 +15,47 @@ namespace NewsWire.Services
             _logger = logger;
         }
 
-        public async Task<string> UploadImageAsync(IFormFile file, string folder)
+        public async Task<string?> UploadImageAsync(IFormFile file, string folder)
         {
             try
             {
                 if (file == null || file.Length == 0)
-                {
-                    _logger.LogWarning("Attempted to upload null or empty file");
                     return null;
-                }
 
                 if (!ValidateImageFile(file))
+                    return null;
+
+                if (string.IsNullOrEmpty(_webHostEnvironment.ContentRootPath))
                 {
-                    _logger.LogWarning("Invalid file type or size: {FileName}", file.FileName);
+                    _logger.LogError("ContentRootPath is null or empty");
                     return null;
                 }
 
-                string folderPath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", folder);
-                Directory.CreateDirectory(folderPath);
+                string uploadsBasePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Uploads");
+                string folderPath = Path.Combine(uploadsBasePath, folder);
 
-                string fileExtension = Path.GetExtension(file.FileName);
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                string fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
                 string uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
                 string filePath = Path.Combine(folderPath, uniqueFileName);
 
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true))
                 {
                     await file.CopyToAsync(fileStream);
+                    await fileStream.FlushAsync();
                 }
 
-                return $"/Images/{folder}/{uniqueFileName}";
+                if (!File.Exists(filePath))
+                {
+                    _logger.LogError("File was not created: {FilePath}", filePath);
+                    return null;
+                }
+
+                return $"/uploads/{folder}/{uniqueFileName}";
             }
             catch (Exception ex)
             {
@@ -66,16 +69,29 @@ namespace NewsWire.Services
             try
             {
                 if (string.IsNullOrEmpty(imagePath) || imagePath.Contains("default"))
-                {
                     return true;
+
+                string? fullPath = null;
+
+                if (imagePath.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase))
+                {
+                    fullPath = Path.Combine(
+                        _webHostEnvironment.ContentRootPath,
+                        imagePath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+                }
+                else if (!string.IsNullOrEmpty(_webHostEnvironment.WebRootPath))
+                {
+                    fullPath = Path.Combine(
+                        _webHostEnvironment.WebRootPath,
+                        imagePath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
                 }
 
-                string fullPath = Path.Combine(_webHostEnvironment.WebRootPath, imagePath.TrimStart('/'));
+                if (string.IsNullOrEmpty(fullPath))
+                    return false;
 
                 if (File.Exists(fullPath))
                 {
                     await Task.Run(() => File.Delete(fullPath));
-                    _logger.LogInformation("Deleted image: {ImagePath}", imagePath);
                     return true;
                 }
 
@@ -94,24 +110,15 @@ namespace NewsWire.Services
                 return false;
 
             if (file.Length > MaxFileSize)
-            {
-                _logger.LogWarning("File too large: {Size} bytes", file.Length);
                 return false;
-            }
 
             string extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!_allowedExtensions.Contains(extension))
-            {
-                _logger.LogWarning("Invalid file extension: {Extension}", extension);
                 return false;
-            }
 
             var allowedContentTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp" };
             if (!allowedContentTypes.Contains(file.ContentType.ToLower()))
-            {
-                _logger.LogWarning("Invalid content type: {ContentType}", file.ContentType);
                 return false;
-            }
 
             return true;
         }

@@ -4,26 +4,28 @@
 @inject SignInManager<CustomUser> SignInManager
 @inject UserManager<CustomUser> UserManager
 
-@if (SignInManager.IsSignedIn(User))
-{
-    <nav id="navmenu" class="navmenu">
-        <ul>
-            <li><a href="@Url.Action("Index", "Home")" class="active">About</a></li>
+<nav id="navmenu" class="navmenu">
+    <ul>
+        <li><a href="@Url.Action("Index", "Home")" class="active">About</a></li>
+        <li><a href="@Url.Action("Index", "TeamMembers")">Team Member</a></li>
+        <li><a href="@Url.Action("Index", "ContactUs")">Contact</a></li>
+        
+        @if (SignInManager.IsSignedIn(User))
+        {
             @if(!User.IsInRole("Admin"))
             {
-
-            <li><a href="@Url.Action("Index", "Profile")">
-                <i class="bi bi-person-circle me-1"></i>My Profile
-            </a></li>
+                <li><a href="@Url.Action("Index", "Profile")">
+                    <i class="bi bi-person-circle me-1"></i>My Profile
+                </a></li>
             }
-            <li><a href="@Url.Action("Index", "TeamMembers")">Team Member</a></li>
-            <li><a href="@Url.Action("Index", "ContactUs")">Contact</a></li>
+            
             @if (User.IsInRole("Admin"))
             {
                 <li><a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })" style="color: #3fbbc0; font-weight: 600;">
                     <i class="bi bi-shield-check me-1"></i>Admin Panel
                 </a></li>
             }
+            
             <li>
                 <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Categories")">
                     <button type="submit" class="nav-link">
@@ -31,21 +33,16 @@
                     </button>
                 </form>
             </li>
-        </ul>
-        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-    </nav>
-}
-else
-{
-    <nav id="navmenu" class="navmenu">
-        <ul>
+        }
+        else
+        {
             <li><a asp-area="Identity" asp-page="/Account/Register">
                 <i class="bi bi-person-plus me-1"></i>Register
             </a></li>
             <li><a asp-area="Identity" asp-page="/Account/Login">
                 <i class="bi bi-box-arrow-in-right me-1"></i>Login
             </a></li>
-        </ul>
-        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-    </nav>
-}
+        }
+    </ul>
+    <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+</nav>

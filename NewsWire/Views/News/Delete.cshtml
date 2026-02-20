@@ -1,4 +1,4 @@
-﻿@model NewsWire.Models.News
+﻿@model NewsWire.Models.NewsDisplayViewModel
 
 @{
     ViewData["Title"] = "Delete News Article";
@@ -21,7 +21,7 @@
                         Confirm Article Deletion
                     </h5>
                     <p class="mb-0">
-                        <strong>Warning:</strong> This action cannot be undone. Deleting this article will permanently remove it from your publication and may affect website functionality.
+                        <strong>Warning:</strong> This action cannot be undone. Deleting this article will permanently remove it from your publication.
                     </p>
                 </div>
             </div>
@@ -45,10 +45,10 @@
                             <div class="col-md-8 mb-4">
                                 <div class="info-item">
                                     <label class="form-label fw-bold text-muted mb-2">
-                                        @Html.DisplayNameFor(model => model.Title)
+                                        Title
                                     </label>
                                     <div class="info-value p-3 bg-light rounded">
-                                        <h5 class="mb-0 text-dark">@Html.DisplayFor(model => model.Title)</h5>
+                                        <h5 class="mb-0 text-dark">@Html.DisplayFor(model => model.News.Title)</h5>
                                     </div>
                                 </div>
                             </div>
@@ -57,11 +57,11 @@
                             <div class="col-md-4 mb-4">
                                 <div class="info-item">
                                     <label class="form-label fw-bold text-muted mb-2">
-                                        @Html.DisplayNameFor(model => model.Category)
+                                        Category
                                     </label>
                                     <div class="info-value p-3 bg-light rounded">
                                         <span class="badge" style="background-color: var(--accent-color); color: white;">
-                                            @Html.DisplayFor(model => model.Category.Name)
+                                            @Html.DisplayFor(model => model.News.Category.Name)
                                         </span>
                                     </div>
                                 </div>
@@ -71,17 +71,17 @@
                             <div class="col-12 mb-4">
                                 <div class="info-item">
                                     <label class="form-label fw-bold text-muted mb-2">
-                                        @Html.DisplayNameFor(model => model.Content)
+                                        Content Preview
                                     </label>
                                     <div class="info-value p-3 bg-light rounded">
                                         <p class="mb-0 text-dark">
-                                            @if (Model.Content != null && Model.Content.Length > 200)
+                                            @if (Model.News.Content != null && Model.News.Content.Length > 200)
                                             {
-                                                @Html.Raw(Model.Content.Substring(0, 200) + "...")
+                                                @Html.Raw(Model.News.Content.Substring(0, 200) + "...")
                                             }
                                             else
                                             {
-                                                @Html.DisplayFor(model => model.Content)
+                                                @Html.DisplayFor(model => model.News.Content)
                                             }
                                         </p>
                                     </div>
@@ -92,12 +92,12 @@
                             <div class="col-md-6 mb-4">
                                 <div class="info-item">
                                     <label class="form-label fw-bold text-muted mb-2">
-                                        @Html.DisplayNameFor(model => model.PublishedAt)
+                                        Published Date
                                     </label>
                                     <div class="info-value p-3 bg-light rounded">
                                         <p class="mb-0 text-dark">
                                             <i class="bi bi-calendar-event me-2"></i>
-                                            @Html.DisplayFor(model => model.PublishedAt)
+                                            @Html.DisplayFor(model => model.News.PublishedAt)
                                         </p>
                                     </div>
                                 </div>
@@ -106,28 +106,30 @@
                             <div class="col-md-6 mb-4">
                                 <div class="info-item">
                                     <label class="form-label fw-bold text-muted mb-2">
-                                        @Html.DisplayNameFor(model => model.Topic)
+                                        Topic
                                     </label>
                                     <div class="info-value p-3 bg-light rounded">
                                         <p class="mb-0 text-dark">
                                             <i class="bi bi-tags me-2"></i>
-                                            @Html.DisplayFor(model => model.Topic)
+                                            @Html.DisplayFor(model => model.News.Topic)
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Image URL -->
-                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            <!-- Article Image -->
+                            @if (!string.IsNullOrEmpty(Model.News.ImageUrl))
                             {
                                 <div class="col-12 mb-4">
                                     <div class="info-item">
                                         <label class="form-label fw-bold text-muted mb-2">
-                                            @Html.DisplayNameFor(model => model.ImageUrl)
+                                            Featured Image
                                         </label>
-                                        <div class="info-value p-3 bg-light rounded">
-                                            <p class="mb-2 text-dark text-truncate">@Html.DisplayFor(model => model.ImageUrl)</p>
-                                            <img src="@Model.ImageUrl" alt="Article Image" class="img-thumbnail" style="max-height: 150px;" />
+                                        <div class="info-value">
+                                            <img src="@Model.News.ImageUrl" alt="@Model.News.Title" 
+                                                 class="img-fluid rounded shadow-sm" 
+                                                 style="max-height: 300px; object-fit: cover;"
+                                                 onerror="this.onerror=null; this.src='/assets/img/Local/default-news.jpg';" />
                                         </div>
                                     </div>
                                 </div>
@@ -137,23 +139,27 @@
                         <!-- Action Buttons -->
                         <div class="row mt-4 pt-4 border-top">
                             <div class="col-12">
-                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                                    <!-- Back Button -->
-                                    <a asp-action="Index" class="btn btn-secondary px-4 py-2">
-                                        <i class="bi bi-arrow-left me-2"></i>
-                                        Back to Articles
-                                    </a>
+                                <form asp-action="Delete" method="post">
+                                    <input type="hidden" asp-for="News.Id" />
+                                    @if (!string.IsNullOrEmpty(ViewBag.ReturnUrl as string))
+                                    {
+                                        <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+                                    }
+                                    
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                        <!-- Cancel Button -->
+                                        <a href="javascript:void(0);" onclick="history.back();" class="btn btn-secondary px-4 py-2">
+                                            <i class="bi bi-x-circle me-2"></i>
+                                            Cancel
+                                        </a>
 
-                                    <!-- Delete Form -->
-                                    <form asp-action="Delete" class="d-inline">
-                                        <input type="hidden" asp-for="Id" />
-                                        <button type="submit" class="btn btn-danger px-4 py-2" 
-                                                onclick="return confirm('Are you absolutely sure you want to delete this news article? This action cannot be undone.');">
+                                        <!-- Delete Button -->
+                                        <button type="submit" class="btn btn-danger px-4 py-2">
                                             <i class="bi bi-trash me-2"></i>
-                                            Confirm Delete
+                                            Yes, Delete Article
                                         </button>
-                                    </form>
-                                </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>

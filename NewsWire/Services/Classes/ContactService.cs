@@ -1,17 +1,17 @@
-using Microsoft.EntityFrameworkCore;
-using NewsWire.Data;
 using NewsWire.Models;
+using NewsWire.Repositories.Interfaces;
+using NewsWire.Services.Interfaces;
 
-namespace NewsWire.Services
+namespace NewsWire.Services.Classes
 {
     public class ContactService : IContactService
     {
-        private readonly NewsDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ContactService> _logger;
 
-        public ContactService(NewsDbContext context, ILogger<ContactService> logger)
+        public ContactService(IUnitOfWork unitOfWork, ILogger<ContactService> logger)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
@@ -19,9 +19,8 @@ namespace NewsWire.Services
         {
             try
             {
-                return await _context.ContactUs
-                    .OrderByDescending(c => c.Id)
-                    .ToListAsync();
+                var messages = await _unitOfWork.Contacts.GetAllOrderedAsync();
+                return messages.ToList();
             }
             catch (Exception ex)
             {
@@ -34,8 +33,7 @@ namespace NewsWire.Services
         {
             try
             {
-                return await _context.ContactUs
-                    .FirstOrDefaultAsync(c => c.Id == id);
+                return await _unitOfWork.Contacts.GetByIdAsync(id);
             }
             catch (Exception ex)
             {
@@ -49,28 +47,14 @@ namespace NewsWire.Services
             try
             {
                 if (message == null)
-                {
-                    _logger.LogWarning("Attempted to create null contact message");
                     return false;
-                }
 
-                // Validate email format
-                if (string.IsNullOrWhiteSpace(message.Email) || !message.Email.Contains("@"))
-                {
-                    _logger.LogWarning("Invalid email format: {Email}", message.Email);
+                if (string.IsNullOrWhiteSpace(message.Email) || !message.Email.Contains('@'))
                     return false;
-                }
 
-                _context.ContactUs.Add(message);
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    _logger.LogInformation("Contact message created from {Email}", message.Email);
-                    return true;
-                }
-
-                return false;
+                await _unitOfWork.Contacts.AddAsync(message);
+                var result = await _unitOfWork.SaveChangesAsync();
+                return result > 0;
             }
             catch (Exception ex)
             {
@@ -83,23 +67,13 @@ namespace NewsWire.Services
         {
             try
             {
-                var message = await _context.ContactUs.FindAsync(id);
+                var message = await _unitOfWork.Contacts.GetByIdAsync(id);
                 if (message == null)
-                {
-                    _logger.LogWarning("Contact message not found for deletion: {MessageId}", id);
                     return false;
-                }
 
-                _context.ContactUs.Remove(message);
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    _logger.LogInformation("Contact message deleted: {MessageId}", id);
-                    return true;
-                }
-
-                return false;
+                _unitOfWork.Contacts.Remove(message);
+                var result = await _unitOfWork.SaveChangesAsync();
+                return result > 0;
             }
             catch (Exception ex)
             {
@@ -112,7 +86,7 @@ namespace NewsWire.Services
         {
             try
             {
-                return await _context.ContactUs.AnyAsync(c => c.Id == id);
+                return await _unitOfWork.Contacts.ExistsAsync(c => c.Id == id);
             }
             catch (Exception ex)
             {
@@ -125,7 +99,7 @@ namespace NewsWire.Services
         {
             try
             {
-                return await _context.ContactUs.CountAsync();
+                return await _unitOfWork.Contacts.CountAsync();
             }
             catch (Exception ex)
             {
@@ -138,22 +112,12 @@ namespace NewsWire.Services
         {
             try
             {
-                var message = await _context.ContactUs.FindAsync(id);
+                var message = await _unitOfWork.Contacts.GetByIdAsync(id);
                 if (message == null)
-                {
-                    _logger.LogWarning("Message not found for marking as read: {MessageId}", id);
                     return false;
-                }
 
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    _logger.LogInformation("Message marked as read: {MessageId}", id);
-                    return true;
-                }
-
-                return false;
+                await _unitOfWork.SaveChangesAsync();
+                return true;
             }
             catch (Exception ex)
             {

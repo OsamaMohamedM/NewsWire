@@ -12,6 +12,7 @@ namespace NewsWire.Models
         public string? LastName { get; set; }
 
         public string? profilePictureUrl { get; set; }
-        public ICollection<News> news { get; set; }
+        
+        public ICollection<News> news { get; set; } = new List<News>();
     }
 }

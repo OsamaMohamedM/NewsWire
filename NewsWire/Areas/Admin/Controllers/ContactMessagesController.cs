@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NewsWire.Data;
-using NewsWire.Models;
+using NewsWire.Services.Interfaces;
 
 namespace NewsWire.Areas.Admin.Controllers
 {
@@ -10,73 +8,53 @@ namespace NewsWire.Areas.Admin.Controllers
     [Authorize(Roles = "Admin")]
     public class ContactMessagesController : Controller
     {
-        private readonly NewsDbContext _context;
+        private readonly IContactService _contactService;
 
-        public ContactMessagesController(NewsDbContext context)
+        public ContactMessagesController(IContactService contactService)
         {
-            _context = context;
+            _contactService = contactService;
         }
 
-        // GET: Admin/ContactMessages
         public async Task<IActionResult> Index()
         {
             ViewData["PageTitle"] = "Contact Messages";
-            var messages = await _context.ContactUs.OrderByDescending(c => c.Id).ToListAsync();
+            var messages = await _contactService.GetAllMessagesAsync();
             return View(messages);
         }
 
-        // GET: Admin/ContactMessages/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             ViewData["PageTitle"] = "Message Details";
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var contactUs = await _context.ContactUs
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var contactUs = await _contactService.GetMessageByIdAsync(id.Value);
             if (contactUs == null)
-            {
                 return NotFound();
-            }
 
             return View(contactUs);
         }
 
-        // GET: Admin/ContactMessages/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             ViewData["PageTitle"] = "Delete Message";
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var contactUs = await _context.ContactUs
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var contactUs = await _contactService.GetMessageByIdAsync(id.Value);
             if (contactUs == null)
-            {
                 return NotFound();
-            }
 
             return View(contactUs);
         }
 
-        // POST: Admin/ContactMessages/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var contactUs = await _context.ContactUs.FindAsync(id);
-            if (contactUs != null)
-            {
-                _context.ContactUs.Remove(contactUs);
-                await _context.SaveChangesAsync();
+            var success = await _contactService.DeleteMessageAsync(id);
+            if (success)
                 TempData["SuccessMessage"] = "Contact message deleted successfully!";
-            }
 
             return RedirectToAction(nameof(Index));
         }

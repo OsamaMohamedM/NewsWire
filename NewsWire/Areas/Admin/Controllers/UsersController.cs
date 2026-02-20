@@ -149,8 +149,10 @@ namespace NewsWire.Areas.Admin.Controllers
                 }
             }
 
+            // Re-populate the dropdowns and lists when returning to the view due to validation errors
             var allRoles = await _roleManager.Roles.ToListAsync();
             model.AllRoles = allRoles.Select(r => r.Name).ToList();
+            model.UserRoles = model.SelectedRoles ?? new List<string>();
             return View(model);
         }
 
@@ -211,28 +213,5 @@ namespace NewsWire.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-    }
-
-    public class UserViewModel
-    {
-        public string Id { get; set; }
-        public string Email { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string PhoneNumber { get; set; }
-        public string ProfilePictureUrl { get; set; }
-        public List<string> Roles { get; set; }
-    }
-
-    public class EditUserViewModel
-    {
-        public string Id { get; set; }
-        public string Email { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string PhoneNumber { get; set; }
-        public List<string> AllRoles { get; set; }
-        public List<string> UserRoles { get; set; }
-        public List<string> SelectedRoles { get; set; }
     }
 }

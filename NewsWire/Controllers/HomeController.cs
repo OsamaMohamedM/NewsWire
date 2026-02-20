@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using NewsWire.Models;
-using NewsWire.Services;
+using NewsWire.Services.Interfaces;
 
 namespace NewsWire.Controllers
 {

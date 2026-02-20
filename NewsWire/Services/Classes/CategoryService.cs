@@ -1,17 +1,17 @@
-using Microsoft.EntityFrameworkCore;
-using NewsWire.Data;
 using NewsWire.Models;
+using NewsWire.Repositories.Interfaces;
+using NewsWire.Services.Interfaces;
 
-namespace NewsWire.Services
+namespace NewsWire.Services.Classes
 {
     public class CategoryService : ICategoryService
     {
-        private readonly NewsDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<CategoryService> _logger;
 
-        public CategoryService(NewsDbContext context, ILogger<CategoryService> logger)
+        public CategoryService(IUnitOfWork unitOfWork, ILogger<CategoryService> logger)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
@@ -19,9 +19,8 @@ namespace NewsWire.Services
         {
             try
             {
-                return await _context.Categories
-                    .OrderBy(c => c.Name)
-                    .ToListAsync();
+                var categories = await _unitOfWork.Categories.GetAllOrderedAsync();
+                return categories.ToList();
             }
             catch (Exception ex)
             {
@@ -34,9 +33,7 @@ namespace NewsWire.Services
         {
             try
             {
-                return await _context.Categories
-                    .Include(c => c.NewsItems)
-                    .FirstOrDefaultAsync(c => c.Id == id);
+                return await _unitOfWork.Categories.GetCategoryWithNewsAsync(id);
             }
             catch (Exception ex)
             {
@@ -50,31 +47,17 @@ namespace NewsWire.Services
             try
             {
                 if (category == null)
-                {
-                    _logger.LogWarning("Attempted to create null category");
                     return false;
-                }
 
-                // Check for duplicate category name
-                var existingCategory = await _context.Categories
-                    .FirstOrDefaultAsync(c => c.Name.ToLower() == category.Name.ToLower());
-
-                if (existingCategory != null)
+                if (await _unitOfWork.Categories.NameExistsAsync(category.Name))
                 {
                     _logger.LogWarning("Category with name '{CategoryName}' already exists", category.Name);
                     return false;
                 }
 
-                _context.Categories.Add(category);
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    _logger.LogInformation("Category created successfully: {CategoryName}", category.Name);
-                    return true;
-                }
-
-                return false;
+                await _unitOfWork.Categories.AddAsync(category);
+                var result = await _unitOfWork.SaveChangesAsync();
+                return result > 0;
             }
             catch (Exception ex)
             {
@@ -88,23 +71,13 @@ namespace NewsWire.Services
             try
             {
                 if (category == null)
-                {
-                    _logger.LogWarning("Attempted to update null category");
                     return false;
-                }
 
-                var existingCategory = await _context.Categories.FindAsync(category.Id);
+                var existingCategory = await _unitOfWork.Categories.GetByIdAsync(category.Id);
                 if (existingCategory == null)
-                {
-                    _logger.LogWarning("Category not found for update: {CategoryId}", category.Id);
                     return false;
-                }
 
-                // Check for duplicate name (excluding current category)
-                var duplicateCategory = await _context.Categories
-                    .FirstOrDefaultAsync(c => c.Name.ToLower() == category.Name.ToLower() && c.Id != category.Id);
-
-                if (duplicateCategory != null)
+                if (await _unitOfWork.Categories.NameExistsAsync(category.Name, category.Id))
                 {
                     _logger.LogWarning("Category name '{CategoryName}' already exists", category.Name);
                     return false;
@@ -113,21 +86,9 @@ namespace NewsWire.Services
                 existingCategory.Name = category.Name;
                 existingCategory.Description = category.Description;
 
-                _context.Entry(existingCategory).State = EntityState.Modified;
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    _logger.LogInformation("Category updated successfully: {CategoryId}", category.Id);
-                    return true;
-                }
-
-                return false;
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                _logger.LogError(ex, "Concurrency error updating category: {CategoryId}", category?.Id);
-                return false;
+                _unitOfWork.Categories.Update(existingCategory);
+                var result = await _unitOfWork.SaveChangesAsync();
+                return result > 0;
             }
             catch (Exception ex)
             {
@@ -140,33 +101,19 @@ namespace NewsWire.Services
         {
             try
             {
-                var category = await _context.Categories
-                    .Include(c => c.NewsItems)
-                    .FirstOrDefaultAsync(c => c.Id == id);
-
+                var category = await _unitOfWork.Categories.GetCategoryWithNewsAsync(id);
                 if (category == null)
-                {
-                    _logger.LogWarning("Category not found for deletion: {CategoryId}", id);
                     return false;
-                }
 
-                // Check if category has news articles
                 if (category.NewsItems != null && category.NewsItems.Any())
                 {
                     _logger.LogWarning("Cannot delete category with existing news articles: {CategoryId}", id);
                     return false;
                 }
 
-                _context.Categories.Remove(category);
-                var result = await _context.SaveChangesAsync();
-
-                if (result > 0)
-                {
-                    _logger.LogInformation("Category deleted successfully: {CategoryId}", id);
-                    return true;
-                }
-
-                return false;
+                _unitOfWork.Categories.Remove(category);
+                var result = await _unitOfWork.SaveChangesAsync();
+                return result > 0;
             }
             catch (Exception ex)
             {
@@ -179,7 +126,7 @@ namespace NewsWire.Services
         {
             try
             {
-                return await _context.Categories.AnyAsync(c => c.Id == id);
+                return await _unitOfWork.Categories.ExistsAsync(c => c.Id == id);
             }
             catch (Exception ex)
             {
@@ -192,9 +139,7 @@ namespace NewsWire.Services
         {
             try
             {
-                return await _context.News
-                    .Where(n => n.CategoryId == categoryId)
-                    .CountAsync();
+                return await _unitOfWork.News.CountAsync(n => n.CategoryId == categoryId);
             }
             catch (Exception ex)
             {

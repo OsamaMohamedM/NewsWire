@@ -7,6 +7,13 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/Dotnet.gitignore
 
+# ====================================
+# USER-UPLOADED FILES
+# ====================================
+# Exclude all user uploads from version control
+/Uploads/
+!/Uploads/.gitkeep
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
