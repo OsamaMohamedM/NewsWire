@@ -12,11 +12,16 @@ namespace NewsWire.Areas.Admin.Controllers
     {
         private readonly UserManager<CustomUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ILogger<UsersController> _logger;
 
-        public UsersController(UserManager<CustomUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UsersController(
+            UserManager<CustomUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            ILogger<UsersController> logger)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _logger = logger;
         }
 
         // GET: Admin/Users
@@ -65,7 +70,7 @@ namespace NewsWire.Areas.Admin.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
-                ProfilePictureUrl = user.profilePictureUrl,
+                ProfilePictureUrl = user.ProfilePictureUrl,
                 Roles = roles.ToList()
             };
 
@@ -139,12 +144,18 @@ namespace NewsWire.Areas.Admin.Controllers
                         var addRolesResult = await _userManager.AddToRolesAsync(user, rolesToAdd);
                         if (!addRolesResult.Succeeded)
                         {
+                            _logger.LogWarning("Failed to add roles {Roles} to user {UserId}: {Errors}",
+                                string.Join(", ", rolesToAdd), user.Id,
+                                string.Join(", ", addRolesResult.Errors.Select(e => e.Description)));
                             TempData["ErrorMessage"] = string.Join(", ", addRolesResult.Errors.Select(e => e.Description));
                             var allRoles = await _roleManager.Roles.ToListAsync();
                             model.AllRoles = allRoles.Select(r => r.Name).ToList();
                             model.UserRoles = model.SelectedRoles ?? new List<string>();
                             return View(model);
                         }
+                        _logger.LogInformation("Admin {AdminId} added roles {Roles} to user {UserId}",
+                            User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+                            string.Join(", ", rolesToAdd), user.Id);
                     }
 
                     if (rolesToRemove.Any())
@@ -152,15 +163,23 @@ namespace NewsWire.Areas.Admin.Controllers
                         var removeRolesResult = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
                         if (!removeRolesResult.Succeeded)
                         {
+                            _logger.LogWarning("Failed to remove roles {Roles} from user {UserId}: {Errors}",
+                                string.Join(", ", rolesToRemove), user.Id,
+                                string.Join(", ", removeRolesResult.Errors.Select(e => e.Description)));
                             TempData["ErrorMessage"] = string.Join(", ", removeRolesResult.Errors.Select(e => e.Description));
                             var allRoles = await _roleManager.Roles.ToListAsync();
                             model.AllRoles = allRoles.Select(r => r.Name).ToList();
                             model.UserRoles = model.SelectedRoles ?? new List<string>();
                             return View(model);
                         }
+                        _logger.LogInformation("Admin {AdminId} removed roles {Roles} from user {UserId}",
+                            User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+                            string.Join(", ", rolesToRemove), user.Id);
                     }
 
                     TempData["SuccessMessage"] = "User updated successfully!";
+                    _logger.LogInformation("User {UserId} profile updated successfully by admin {AdminId}",
+                        user.Id, User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -204,7 +223,6 @@ namespace NewsWire.Areas.Admin.Controllers
             return View(viewModel);
         }
 
-        // POST: Admin/Users/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
@@ -212,10 +230,10 @@ namespace NewsWire.Areas.Admin.Controllers
             var user = await _userManager.FindByIdAsync(id);
             if (user != null)
             {
-                // Prevent deleting yourself
                 var currentUser = await _userManager.GetUserAsync(User);
                 if (currentUser.Id == user.Id)
                 {
+                    _logger.LogWarning("Admin {AdminId} attempted to delete their own account", currentUser.Id);
                     TempData["ErrorMessage"] = "You cannot delete your own account!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -223,10 +241,14 @@ namespace NewsWire.Areas.Admin.Controllers
                 var result = await _userManager.DeleteAsync(user);
                 if (result.Succeeded)
                 {
+                    _logger.LogInformation("User {UserId} ({Email}) deleted by admin {AdminId}",
+                        user.Id, user.Email, currentUser.Id);
                     TempData["SuccessMessage"] = "User deleted successfully!";
                 }
                 else
                 {
+                    _logger.LogError("Failed to delete user {UserId}: {Errors}",
+                        user.Id, string.Join(", ", result.Errors.Select(e => e.Description)));
                     TempData["ErrorMessage"] = "Failed to delete user.";
                 }
             }

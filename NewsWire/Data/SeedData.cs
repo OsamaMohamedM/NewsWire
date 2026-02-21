@@ -9,8 +9,8 @@ namespace NewsWire.Data
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<CustomUser>>();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 
-            // Create roles
             string[] roleNames = { "Admin", "User" };
             foreach (var roleName in roleNames)
             {
@@ -20,9 +20,8 @@ namespace NewsWire.Data
                 }
             }
 
-            // Create default admin user
-            var adminEmail = "admin@newswire.com";
-            var adminPassword = "Admin@123";
+            var adminEmail = configuration["AdminSettings:Email"] ?? "admin@newswire.com";
+            var adminPassword = configuration["AdminSettings:Password"] ?? "Admin@123456";
 
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
             if (adminUser == null)

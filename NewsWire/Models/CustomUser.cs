@@ -5,14 +5,14 @@ namespace NewsWire.Models
 {
     public class CustomUser : IdentityUser
     {
-      
         [MaxLength(50)]
         public string? FirstName { get; set; }
+
         [MaxLength(50)]
         public string? LastName { get; set; }
 
-        public string? profilePictureUrl { get; set; }
-        
-        public ICollection<News> news { get; set; } = new List<News>();
+        public string? ProfilePictureUrl { get; set; }
+
+        public ICollection<News> News { get; set; } = new List<News>();
     }
 }

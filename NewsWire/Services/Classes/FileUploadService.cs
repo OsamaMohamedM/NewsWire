@@ -120,7 +120,48 @@ namespace NewsWire.Services.Classes
             if (!allowedContentTypes.Contains(file.ContentType.ToLower()))
                 return false;
 
+            if (!IsValidImageByMagicNumber(file))
+            {
+                _logger.LogWarning("File rejected due to invalid magic number: {FileName}", file.FileName);
+                return false;
+            }
+
             return true;
+        }
+
+        private bool IsValidImageByMagicNumber(IFormFile file)
+        {
+            try
+            {
+                using var stream = file.OpenReadStream();
+                var buffer = new byte[8];
+                stream.Read(buffer, 0, 8);
+                stream.Position = 0;
+
+                if (buffer.Length < 2)
+                    return false;
+
+                if (buffer[0] == 0xFF && buffer[1] == 0xD8)
+                    return true;
+
+                if (buffer[0] == 0x89 && buffer[1] == 0x50 && buffer[2] == 0x4E && buffer[3] == 0x47)
+                    return true;
+
+                if (buffer[0] == 0x47 && buffer[1] == 0x49 && buffer[2] == 0x46)
+                    return true;
+
+                if (buffer.Length >= 12 &&
+                    buffer[0] == 0x52 && buffer[1] == 0x49 && buffer[2] == 0x46 && buffer[3] == 0x46 &&
+                    buffer[8] == 0x57 && buffer[9] == 0x45 && buffer[10] == 0x42 && buffer[11] == 0x50)
+                    return true;
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error validating file magic number");
+                return false;
+            }
         }
     }
 }

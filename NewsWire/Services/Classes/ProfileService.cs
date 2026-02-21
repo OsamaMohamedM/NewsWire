@@ -38,7 +38,7 @@ namespace NewsWire.Services.Classes
                 FirstName = user.FirstName ?? string.Empty,
                 LastName = user.LastName ?? string.Empty,
                 Email = user.Email ?? string.Empty,
-                CurrentPicturePath = user.profilePictureUrl ?? "/assets/img/Local/default-avatar.jpg",
+                CurrentPicturePath = user.ProfilePictureUrl ?? "/assets/img/Local/default-avatar.jpg",
                 TotalNewsCount = userNewsCount,
                 TotalFavoriteCount = userFavoritesCount,
                 JoinDate = user.LockoutEnd?.DateTime ?? DateTime.UtcNow
@@ -55,16 +55,16 @@ namespace NewsWire.Services.Classes
 
                 if (model.ProfileImage != null && _fileUploadService.ValidateImageFile(model.ProfileImage))
                 {
-                    if (!string.IsNullOrEmpty(user.profilePictureUrl)
-                        && !user.profilePictureUrl.Contains("default"))
+                    if (!string.IsNullOrEmpty(user.ProfilePictureUrl)
+                        && !user.ProfilePictureUrl.Contains("default"))
                     {
-                        await _fileUploadService.DeleteImageAsync(user.profilePictureUrl);
+                        await _fileUploadService.DeleteImageAsync(user.ProfilePictureUrl);
                     }
 
                     var imagePath = await _fileUploadService.UploadImageAsync(model.ProfileImage, "Profiles");
                     if (!string.IsNullOrEmpty(imagePath))
                     {
-                        user.profilePictureUrl = imagePath;
+                        user.ProfilePictureUrl = imagePath;
                     }
                 }
 

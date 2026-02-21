@@ -15,12 +15,12 @@ builder.Services.AddDbContext<NewsDbContext>(options =>
 builder.Services.AddIdentity<CustomUser, IdentityRole>(
      option =>
      {
-         option.Password.RequireDigit = false;
-         option.Password.RequireLowercase = false;
-         option.Password.RequireUppercase = false;
-         option.Password.RequireNonAlphanumeric = false;
-         option.Password.RequiredLength = 6;
-         option.User.RequireUniqueEmail = false;
+         option.Password.RequireDigit = true;
+         option.Password.RequireLowercase = true;
+         option.Password.RequireUppercase = true;
+         option.Password.RequireNonAlphanumeric = true;
+         option.Password.RequiredLength = 8;
+         option.User.RequireUniqueEmail = true;
          option.SignIn.RequireConfirmedEmail = false;
          option.SignIn.RequireConfirmedPhoneNumber = false;
      })

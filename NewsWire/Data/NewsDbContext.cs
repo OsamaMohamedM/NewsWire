@@ -30,10 +30,9 @@ namespace NewsWire.Data
                 .HasIndex(uf => new { uf.UserId, uf.NewsId })
                 .IsUnique();
 
-            // Configure News-CustomUser relationship
             modelBuilder.Entity<News>()
                 .HasOne(n => n.Author)
-                .WithMany(u => u.news)
+                .WithMany(u => u.News)
                 .HasForeignKey(n => n.AuthorId)
                 .OnDelete(DeleteBehavior.SetNull);
 
