@@ -104,7 +104,6 @@ namespace NewsWire.Areas.Admin.Controllers
             return View(viewModel);
         }
 
-        // POST: Admin/Users/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, EditUserViewModel model)
@@ -129,15 +128,37 @@ namespace NewsWire.Areas.Admin.Controllers
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
                 {
-                    // Update roles
                     var currentRoles = await _userManager.GetRolesAsync(user);
                     var selectedRoles = model.SelectedRoles ?? new List<string>();
 
                     var rolesToAdd = selectedRoles.Except(currentRoles);
                     var rolesToRemove = currentRoles.Except(selectedRoles);
 
-                    await _userManager.AddToRolesAsync(user, rolesToAdd);
-                    await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+                    if (rolesToAdd.Any())
+                    {
+                        var addRolesResult = await _userManager.AddToRolesAsync(user, rolesToAdd);
+                        if (!addRolesResult.Succeeded)
+                        {
+                            TempData["ErrorMessage"] = string.Join(", ", addRolesResult.Errors.Select(e => e.Description));
+                            var allRoles = await _roleManager.Roles.ToListAsync();
+                            model.AllRoles = allRoles.Select(r => r.Name).ToList();
+                            model.UserRoles = model.SelectedRoles ?? new List<string>();
+                            return View(model);
+                        }
+                    }
+
+                    if (rolesToRemove.Any())
+                    {
+                        var removeRolesResult = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+                        if (!removeRolesResult.Succeeded)
+                        {
+                            TempData["ErrorMessage"] = string.Join(", ", removeRolesResult.Errors.Select(e => e.Description));
+                            var allRoles = await _roleManager.Roles.ToListAsync();
+                            model.AllRoles = allRoles.Select(r => r.Name).ToList();
+                            model.UserRoles = model.SelectedRoles ?? new List<string>();
+                            return View(model);
+                        }
+                    }
 
                     TempData["SuccessMessage"] = "User updated successfully!";
                     return RedirectToAction(nameof(Index));
@@ -149,9 +170,8 @@ namespace NewsWire.Areas.Admin.Controllers
                 }
             }
 
-            // Re-populate the dropdowns and lists when returning to the view due to validation errors
-            var allRoles = await _roleManager.Roles.ToListAsync();
-            model.AllRoles = allRoles.Select(r => r.Name).ToList();
+            var rolesForView = await _roleManager.Roles.ToListAsync();
+            model.AllRoles = rolesForView.Select(r => r.Name).ToList();
             model.UserRoles = model.SelectedRoles ?? new List<string>();
             return View(model);
         }

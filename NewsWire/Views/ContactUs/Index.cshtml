@@ -39,36 +39,51 @@
                 </div><!-- End Info Item -->
             </div>
 
-            <!-- Contact Form -->
             <div class="col-lg-8">
-                <form asp-action="Create" asp-controller="" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+                <form asp-action="Index" asp-controller="ContactUs" method="post" class="contact-form" data-aos="fade-up" data-aos-delay="200">
+                    @Html.AntiForgeryToken()
                     <div class="row gy-4">
                         <div class="col-md-6">
                             <input type="text" asp-for="Name" class="form-control" placeholder="Your Name" required="">
+                            <span asp-validation-for="Name" class="text-danger"></span>
                         </div>
 
                         <div class="col-md-6">
                             <input type="email" class="form-control" asp-for="Email" placeholder="Your Email" required="">
+                            <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
 
                         <div class="col-12">
                             <input type="text" class="form-control" asp-for="Subject" placeholder="Subject" required="">
+                            <span asp-validation-for="Subject" class="text-danger"></span>
                         </div>
 
                         <div class="col-12">
                             <textarea class="form-control" asp-for="Message" rows="6" placeholder="Message" required=""></textarea>
+                            <span asp-validation-for="Message" class="text-danger"></span>
                         </div>
 
                         <div class="col-12 text-center">
-                            <div class="loading">Loading</div>
-                            <div class="error-message"></div>
-                            <div class="sent-message">Your message has been sent. Thank you!</div>
+                            @if (TempData["SuccessMessage"] != null)
+                            {
+                                <div class="alert alert-success mb-3">
+                                    <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+                                </div>
+                            }
+                            @if (TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger mb-3">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+                                </div>
+                            }
 
-                            <button type="submit">Send Message</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-2"></i>Send Message
+                            </button>
                         </div>
                     </div>
                 </form>
-            </div><!-- End Contact Form -->
+            </div>
         </div>
     </div>
 </section><!-- /Contact Section -->
